@@ -1034,7 +1034,7 @@ Rigidbody:
   m_GameObject: {fileID: 1881486089742752340}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 2
+  m_Drag: 4
   m_AngularDrag: 2
   m_UseGravity: 1
   m_IsKinematic: 0
@@ -2840,8 +2840,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wheels: {fileID: 8031818323416712780}
   maxSteerAngle: 40
-  acceleration: 50
-  rotationSpeed: 5
+  acceleration: 70
+  rotationSpeed: 3
 --- !u!1 &1881486089742752342
 GameObject:
   m_ObjectHideFlags: 0
