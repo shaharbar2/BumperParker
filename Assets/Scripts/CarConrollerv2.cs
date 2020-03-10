@@ -5,12 +5,14 @@ using UnityEngine;
 public class CarConrollerv2 : MonoBehaviour
 {
     private Rigidbody rb;
+    private float steeringAngle;
     private float horizontalInput;
     private float verticalInput;
 
     public Transform wheels;
-    public float acceleration = 10;
-    public float rotationSpeed = 10;
+    public float maxSteerAngle = 40;
+    public float acceleration = 50;
+    public float rotationSpeed = 5;
 
     private void Start()
     {
@@ -27,18 +29,20 @@ public class CarConrollerv2 : MonoBehaviour
             // Accelerate();
 
             var forwardVelocity = transform.InverseTransformDirection(rb.velocity).z;
-            Debug.Log(forwardVelocity * 0.1f);
 
-            var rotateMultiplier = Mathf.Clamp(forwardVelocity * 0.1f, -2, 2);
-            rb.AddRelativeTorque(Vector3.up * horizontalInput * rotationSpeed * rotateMultiplier * Time.deltaTime, ForceMode.VelocityChange);
-            Debug.Log(Vector3.up * horizontalInput * rotationSpeed * rotateMultiplier);
+            // Steer
+            steeringAngle = maxSteerAngle * horizontalInput;
+            var rotateMultiplier = Mathf.Clamp(forwardVelocity * 0.1f, -1, 1);
+            rb.rotation *= Quaternion.Euler(Vector3.up * steeringAngle * rotationSpeed * rotateMultiplier * Time.deltaTime);
+
+            // Move Forward
             rb.AddRelativeForce(Vector3.forward * verticalInput * acceleration * Time.deltaTime, ForceMode.VelocityChange);
 
             foreach (Transform wheel in wheels)
             {
                 if (wheel.tag == "FrontWheel")
                 {
-                    wheel.localEulerAngles = Vector3.up * horizontalInput * 45;
+                    wheel.localEulerAngles = Vector3.up * steeringAngle;
                 }
                 wheel.GetChild(0).Rotate(Vector3.right * forwardVelocity * 2, Space.Self);
             }

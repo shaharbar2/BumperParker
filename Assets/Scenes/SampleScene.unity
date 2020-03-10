@@ -2839,8 +2839,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wheels: {fileID: 8031818323416712780}
+  maxSteerAngle: 40
   acceleration: 50
-  rotationSpeed: 20
+  rotationSpeed: 5
 --- !u!1 &1881486089742752342
 GameObject:
   m_ObjectHideFlags: 0
