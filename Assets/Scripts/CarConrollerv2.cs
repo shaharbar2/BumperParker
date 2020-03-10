@@ -7,18 +7,15 @@ public class CarConrollerv2 : MonoBehaviour
     private Rigidbody rb;
     private float horizontalInput;
     private float verticalInput;
-    private float steeringAngle;
-    private Quaternion targetRotation;
 
-    // public Transform flWheelT, frWheelT, rlWheelT, rrWheelT;
-    public float steeringSpeed = 5;
-    public float maxSteerAngle = 30;
-    public float motorForce = 50;
+    public Transform wheels;
+    public float acceleration = 10;
+    public float rotationSpeed = 10;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        targetRotation = Quaternion.identity;
+        // targetRotation = Quaternion.identity;
     }
 
     private void FixedUpdate()
@@ -26,9 +23,27 @@ public class CarConrollerv2 : MonoBehaviour
         GetInput();
         if (IsGrounded())
         {
-            Steer();
-            Accelerate();
+            // Steer();
+            // Accelerate();
+
+            var forwardVelocity = transform.InverseTransformDirection(rb.velocity).z;
+            Debug.Log(forwardVelocity * 0.1f);
+
+            var rotateMultiplier = Mathf.Clamp(forwardVelocity * 0.1f, -2, 2);
+            rb.AddRelativeTorque(Vector3.up * horizontalInput * rotationSpeed * rotateMultiplier * Time.deltaTime, ForceMode.VelocityChange);
+            Debug.Log(Vector3.up * horizontalInput * rotationSpeed * rotateMultiplier);
+            rb.AddRelativeForce(Vector3.forward * verticalInput * acceleration * Time.deltaTime, ForceMode.VelocityChange);
+
+            foreach (Transform wheel in wheels)
+            {
+                if (wheel.tag == "FrontWheel")
+                {
+                    wheel.localEulerAngles = Vector3.up * horizontalInput * 45;
+                }
+                wheel.GetChild(0).Rotate(Vector3.right * forwardVelocity * 2, Space.Self);
+            }
         }
+
         Brake();
         UpdateWheelPoses();
     }
@@ -47,44 +62,44 @@ public class CarConrollerv2 : MonoBehaviour
 
     private void Steer()
     {
-        //transform.InverseTransformDirection(rb.velocity).normalized
-        //Vector3.Dot(rb.velocity, rb.transform.forward)
-        // var velocity = rb.velocity.normalized.x + rb.velocity.normalized.z;
-        // var velocity = Mathf.Abs(rb.velocity.normalized.x) + Mathf.Abs(rb.velocity.normalized.z);
-        var velocity = Mathf.Abs(Vector3.Dot(rb.velocity, Vector3.forward));
-        Debug.Log("Velocity: " + velocity);
-        // Debug.Log(Vector3.Dot(rb.velocity, rb.transform.forward));
+        // //transform.InverseTransformDirection(rb.velocity).normalized
+        // //Vector3.Dot(rb.velocity, rb.transform.forward)
+        // // var velocity = rb.velocity.normalized.x + rb.velocity.normalized.z;
+        // // var velocity = Mathf.Abs(rb.velocity.normalized.x) + Mathf.Abs(rb.velocity.normalized.z);
+        // var velocity = Mathf.Abs(Vector3.Dot(rb.velocity, Vector3.forward));
+        // Debug.Log("Velocity: " + velocity);
+        // // Debug.Log(Vector3.Dot(rb.velocity, rb.transform.forward));
 
-        // if (velocity != 0)
-        // {
-        steeringAngle = maxSteerAngle * horizontalInput;
-        // Quaternion deltaRotation = Quaternion.Euler(Vector3.up * steeringAngle);
-        // rb.MoveRotation(rb.rotation * deltaRotation);
+        // // if (velocity != 0)
+        // // {
+        // steeringAngle = maxSteerAngle * horizontalInput;
+        // // Quaternion deltaRotation = Quaternion.Euler(Vector3.up * steeringAngle);
+        // // rb.MoveRotation(rb.rotation * deltaRotation);
 
-        // if (velocity > 0.0001f)
-        // {
-        // verticalInput is added to lower the rotation when slowing down
+        // // if (velocity > 0.0001f)
+        // // {
+        // // verticalInput is added to lower the rotation when slowing down
+        // // Quaternion deltaRotation = Quaternion.Euler(Vector3.up * steeringAngle * steeringSpeed * Time.deltaTime);
+        // // rb.rotation = Quaternion.RotateTowards(rb.rotation, rb.rotation * deltaRotation, maxSteerAngle);
+
         // Quaternion deltaRotation = Quaternion.Euler(Vector3.up * steeringAngle * steeringSpeed * Time.deltaTime);
-        // rb.rotation = Quaternion.RotateTowards(rb.rotation, rb.rotation * deltaRotation, maxSteerAngle);
+        // // rb.rotation = Quaternion.RotateTowards(rb.rotation, rb.rotation * deltaRotation, Mathf.Lerp(maxSteerAngle * velocity, maxSteerAngle, velocity));
+        // // Debug.Log("Yeet " + Mathf.Lerp(velocity, 100, velocity) * 0.01f);
+        // // rb.rotation = Quaternion.Lerp(transform.rotation, rb.rotation * deltaRotation, Mathf.Lerp(0, maxSteerAngle, Mathf.Lerp(0, 1, velocity * Time.deltaTime)));
 
-        Quaternion deltaRotation = Quaternion.Euler(Vector3.up * steeringAngle * steeringSpeed * Time.deltaTime);
-        // rb.rotation = Quaternion.RotateTowards(rb.rotation, rb.rotation * deltaRotation, Mathf.Lerp(maxSteerAngle * velocity, maxSteerAngle, velocity));
-        // Debug.Log("Yeet " + Mathf.Lerp(velocity, 100, velocity) * 0.01f);
-        // rb.rotation = Quaternion.Lerp(transform.rotation, rb.rotation * deltaRotation, Mathf.Lerp(0, maxSteerAngle, Mathf.Lerp(0, 1, velocity * Time.deltaTime)));
-
-        var steeringLerpT = velocity / maxSteerAngle;
-        var rotationLerp = Mathf.Lerp(0, maxSteerAngle, steeringLerpT);
-        Debug.Log("steeringLerpT " + steeringLerpT);
-        Debug.Log("rotationLerp " + rotationLerp);
-        rb.rotation = Quaternion.Lerp(transform.rotation, rb.rotation * deltaRotation, rotationLerp);
+        // var steeringLerpT = velocity / maxSteerAngle;
+        // var rotationLerp = Mathf.Lerp(0, maxSteerAngle, steeringLerpT);
+        // Debug.Log("steeringLerpT " + steeringLerpT);
+        // Debug.Log("rotationLerp " + rotationLerp);
+        // rb.rotation = Quaternion.Lerp(transform.rotation, rb.rotation * deltaRotation, rotationLerp);
     }
 
     private void Accelerate()
     {
-        if (IsGrounded())
-        {
-            rb.AddRelativeForce(Vector3.forward * verticalInput * motorForce * Time.deltaTime, ForceMode.VelocityChange);
-        }
+        // if (IsGrounded())
+        // {
+        //     rb.AddRelativeForce(Vector3.forward * verticalInput * motorForce * Time.deltaTime, ForceMode.VelocityChange);
+        // }
     }
 
     private void Brake()
@@ -103,6 +118,6 @@ public class CarConrollerv2 : MonoBehaviour
 
     private void UpdateWheelPose(Transform wheel)
     {
-        wheel.localRotation = Quaternion.AngleAxis(steeringAngle, Vector3.up);
+        // wheel.localRotation = Quaternion.AngleAxis(steeringAngle, Vector3.up);
     }
 }
