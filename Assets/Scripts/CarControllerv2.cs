@@ -9,12 +9,14 @@ public class CarControllerv2 : MonoBehaviour
     private float forwardVelocity;
     private float horizontalInput;
     private float verticalInput;
+    private float brakeInput;
 
     public Transform wheels;
-    public float maxSteerAngle = 40;
-    public float acceleration = 50;
-    public float rotationSpeed = 5;
-    public float drag = 3;
+    [SerializeField] private float maxSteerAngle = 40;
+    [SerializeField] private float acceleration = 50;
+    [SerializeField] private float rotationSpeed = 5;
+    [SerializeField] private float drag = 3;
+    [SerializeField] private float brake = 3;
     [SerializeField] private float normalMultiplyer = 0.02f;
 
     private void Start()
@@ -34,7 +36,6 @@ public class CarControllerv2 : MonoBehaviour
             Drag();
         }
 
-        // TODO: Implement Brake();
         Brake();
         UpdateWheelPoses();
     }
@@ -56,23 +57,13 @@ public class CarControllerv2 : MonoBehaviour
     {
         horizontalInput = Input.GetAxis("HorizontalMovement");
         verticalInput = Input.GetAxis("Vertical");
+        brakeInput = Input.GetAxis("Brake");
     }
 
     private void Steer()
     {
-        // Try the following :
-        // if (Input.GetKey(KeyCode.Space))
-        //  rotateMultiplier *= 2
         var rotateMultiplier = Mathf.Clamp(forwardVelocity * 0.1f, -1, 1);
-        // if (Input.GetKey(KeyCode.Space))
-        // {
-        // rb.velocity *= 0.5f;
-        // steeringAngle *= 5f;
-
-        // TODO: Make it change slowly
-        rotateMultiplier *= Mathf.Lerp(1, 2, Input.GetAxis("Brake"));
-        Debug.Log(rotateMultiplier);
-        // }
+        rotateMultiplier *= Mathf.Lerp(1, 2, brakeInput);
         rb.MoveRotation(rb.rotation * Quaternion.Euler(Vector3.up * steeringAngle * rotationSpeed * rotateMultiplier * normalMultiplyer));
     }
 
@@ -93,12 +84,11 @@ public class CarControllerv2 : MonoBehaviour
 
     private void Brake()
     {
-        // GetComponent<Rigidbody>().velocity *= 0.9f;
-        // if (Input.GetKey(KeyCode.Space))
-        // {
-        //     rb.velocity *= 0.5f;
-        //     steeringAngle *= 5f;
-        // }
+        float brakeForce = 1 - (brakeInput * brake) / 100;
+        var vel = rb.velocity;
+        vel.x *= brakeForce;
+        vel.z *= brakeForce;
+        rb.velocity = vel;
     }
 
     private void UpdateWheelPoses()
@@ -116,7 +106,6 @@ public class CarControllerv2 : MonoBehaviour
 
     private bool IsGrounded()
     {
-        Debug.Log("Is Grounded = " + Physics.Raycast(rb.position, -rb.transform.up, 0.5f));
-        return Physics.Raycast(rb.position, -rb.transform.up, 1f);
+        return Physics.Raycast(rb.position, -rb.transform.up, 0.5f);
     }
 }
