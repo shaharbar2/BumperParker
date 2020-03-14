@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CarConrollerv2 : MonoBehaviour
+public class CarControllerv2 : MonoBehaviour
 {
     private Rigidbody rb;
     private float steeringAngle;
@@ -14,7 +14,7 @@ public class CarConrollerv2 : MonoBehaviour
     public float maxSteerAngle = 40;
     public float acceleration = 50;
     public float rotationSpeed = 5;
-
+    public float drag = 3;
     [SerializeField] private float normalMultiplyer = 0.02f;
 
     private void Start()
@@ -29,8 +29,9 @@ public class CarConrollerv2 : MonoBehaviour
         forwardVelocity = transform.InverseTransformDirection(rb.velocity).z;
         if (IsGrounded())
         {
-            Steer();
             Accelerate();
+            Steer();
+            Drag();
         }
 
         // TODO: Implement Brake();
@@ -53,7 +54,7 @@ public class CarConrollerv2 : MonoBehaviour
 
     public void GetInput()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
+        horizontalInput = Input.GetAxis("HorizontalMovement");
         verticalInput = Input.GetAxis("Vertical");
     }
 
@@ -63,20 +64,31 @@ public class CarConrollerv2 : MonoBehaviour
         // if (Input.GetKey(KeyCode.Space))
         //  rotateMultiplier *= 2
         var rotateMultiplier = Mathf.Clamp(forwardVelocity * 0.1f, -1, 1);
-        if (Input.GetKey(KeyCode.Space))
-        {
-            // rb.velocity *= 0.5f;
-            // steeringAngle *= 5f;
+        // if (Input.GetKey(KeyCode.Space))
+        // {
+        // rb.velocity *= 0.5f;
+        // steeringAngle *= 5f;
 
-            // TODO: Make it change slowly
-            rotateMultiplier *= 2;
-        }
-        rb.rotation *= Quaternion.Euler(Vector3.up * steeringAngle * rotationSpeed * rotateMultiplier * normalMultiplyer);
+        // TODO: Make it change slowly
+        rotateMultiplier *= Mathf.Lerp(1, 2, Input.GetAxis("Brake"));
+        Debug.Log(rotateMultiplier);
+        // }
+        rb.MoveRotation(rb.rotation * Quaternion.Euler(Vector3.up * steeringAngle * rotationSpeed * rotateMultiplier * normalMultiplyer));
     }
 
     private void Accelerate()
     {
+        // rb.AddForceAtPosition(Vector3.forward * verticalInput * acceleration * normalMultiplyer, Vector3.back, ForceMode.VelocityChange);
         rb.AddRelativeForce(Vector3.forward * verticalInput * acceleration * normalMultiplyer, ForceMode.VelocityChange);
+    }
+
+    private void Drag()
+    {
+        float dragForce = 1 - drag / 100;
+        var vel = rb.velocity;
+        vel.x *= dragForce;
+        vel.z *= dragForce;
+        rb.velocity = vel;
     }
 
     private void Brake()
