@@ -4,23 +4,59 @@ using UnityEngine;
 
 public class ParkingController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
+    private List<CarControllerv2> carsInside;
 
+    [SerializeField] private Color empty;
+    [SerializeField] private Color parking;
+    [SerializeField] private Color competing;
+
+    private void Start()
+    {
+        carsInside = new List<CarControllerv2>();
+        UpdateColor();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerEnter(Collider other)
     {
-
+        var carEntering = other.gameObject.GetComponent<CarControllerv2>();
+        if (carEntering != null)
+        {
+            carsInside.Add(carEntering);
+            UpdateColor();
+        }
     }
 
-    private void OnTriggerStay(Collider other)
+    private void OnTriggerExit(Collider other)
     {
-        // if (other.gameObject.GetComponent("CarControllerv2"))
-        // {
-        Debug.Log("Car is parking");
-        // }
+        var carLeaving = other.gameObject.GetComponent<CarControllerv2>();
+        if (carLeaving != null)
+        {
+            carsInside.Remove(carLeaving);
+            UpdateColor();
+        }
+    }
+
+    private void UpdateColor()
+    {
+        switch (carsInside.Count)
+        {
+            case 0:
+                ChangeColor(empty);
+                break;
+            case 1:
+                ChangeColor(parking);
+                break;
+            default:
+                ChangeColor(competing);
+                break;
+        }
+    }
+
+    private void ChangeColor(Color color)
+    {
+        foreach (Transform cube in transform)
+        {
+            cube.GetComponent<Renderer>().material.color = color;
+        }
     }
 }
