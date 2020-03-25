@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ParkingController : MonoBehaviour
 {
-    private List<CarControllerv2> carsInside;
+    private List<CarController> carsInside;
 
     [SerializeField] private Color empty;
     [SerializeField] private Color parking;
@@ -12,13 +12,13 @@ public class ParkingController : MonoBehaviour
 
     private void Start()
     {
-        carsInside = new List<CarControllerv2>();
+        carsInside = new List<CarController>();
         UpdateColor();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        var carEntering = other.gameObject.GetComponent<CarControllerv2>();
+        var carEntering = other.gameObject.GetComponent<CarController>();
         if (carEntering != null)
         {
             carsInside.Add(carEntering);
@@ -28,7 +28,7 @@ public class ParkingController : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        var carLeaving = other.gameObject.GetComponent<CarControllerv2>();
+        var carLeaving = other.gameObject.GetComponent<CarController>();
         if (carLeaving != null)
         {
             carsInside.Remove(carLeaving);
