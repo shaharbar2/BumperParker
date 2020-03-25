@@ -8,8 +8,7 @@ public class MultipleTargetCamera : MonoBehaviour
 {
     public List<Transform> targets;
 
-    [SerializeField] private float smoothTime = .5f;
-    [SerializeField] private Vector3 offset;
+    // [SerializeField] private float smoothTime = .5f;
     [SerializeField] private float minZoomY = 15;
     [SerializeField] private float maxZoomY = 35;
     [SerializeField] private float minZoomZ = -15;
@@ -18,8 +17,6 @@ public class MultipleTargetCamera : MonoBehaviour
 
     private Camera cam;
     private Bounds bounds;
-    private Vector3 moveVelocity;
-    private Vector3 zoomVelocity;
 
     void Start()
     {
@@ -32,7 +29,6 @@ public class MultipleTargetCamera : MonoBehaviour
         UpdateBounds();
 
         Move();
-        Zoom();
     }
 
     private void UpdateBounds()
@@ -47,33 +43,14 @@ public class MultipleTargetCamera : MonoBehaviour
 
     private void Move()
     {
-        Vector3 centerPoint = GetCenterPoint();
-
-        Vector3 newCamPos = centerPoint + offset;
-
-        transform.position = Vector3.SmoothDamp(transform.position, newCamPos, ref moveVelocity, smoothTime);
-    }
-
-    private void Zoom()
-    {
         float greatestDistance = GetGreatestDistance();
         float newZoomY = Mathf.Lerp(minZoomY, maxZoomY, greatestDistance * zoomNormalizer);
         float newZoomZ = Mathf.Lerp(minZoomZ, maxZoomZ, greatestDistance * zoomNormalizer);
-        // Debug.Log(newZoom);
-        // cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, newZoom, Time.deltaTime);
-        // var tmp = new Vector3(transform.position.x, 0, transform.position.z);
-        // var tmp = new Vector3(transform.position.x, 0, GetEdgeZ() + offset.z);
-        var tmp = new Vector3(transform.position.x,
-         newZoomY,
-          GetEdgeZ() + newZoomZ);
-        transform.position = tmp;
-        // transform.position = tmp + Vector3.up * newZoom;
-        // Debug.Log(transform.position);
-        // Debug.Log(tmp + Vector3.up * newZoom);
-        // Debug.Log("New Zoom: " + newZoom);
-        Debug.Log(offset.z);
-        Debug.Log(bounds.size.z);
-        Debug.Log(offset.z + bounds.size.z);
+        var newCamPos = new Vector3(
+            GetCenterPoint().x,
+            newZoomY,
+            GetEdgeZ() + newZoomZ);
+        transform.position = newCamPos;
     }
 
     private Vector3 GetCenterPoint() => bounds.center;
