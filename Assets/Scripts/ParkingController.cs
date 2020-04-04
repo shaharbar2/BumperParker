@@ -6,9 +6,11 @@ public class ParkingController : MonoBehaviour
 {
     private List<CarController> carsInside;
 
-    [SerializeField] private Color empty;
-    [SerializeField] private Color parking;
-    [SerializeField] private Color competing;
+    [SerializeField] private Color empty = Color.cyan;
+    [SerializeField] private Color parking = Color.green;
+    [SerializeField] private Color competing = Color.red;
+    [SerializeField] private float emissionIntensity = 3f;
+    [SerializeField] private float colorChangeSpeed = 0.05f;
 
     private void Start()
     {
@@ -54,9 +56,18 @@ public class ParkingController : MonoBehaviour
 
     private void ChangeColor(Color color)
     {
+        // PostProcessVolume volume = gameObject.GetComponent<PostProcessVolume>();
+        // volume.profile.GetSetting<Bloom>().color.value = color * 3;
+        StartCoroutine(ChangeColorOverTime(color));
+    }
+
+    IEnumerator ChangeColorOverTime(Color color)
+    {
         foreach (Transform cube in transform)
         {
             cube.GetComponent<Renderer>().material.color = color;
+            cube.GetComponent<Renderer>().material.SetColor("_EmissionColor", color * emissionIntensity);
+            yield return new WaitForSeconds(colorChangeSpeed);
         }
     }
 }
