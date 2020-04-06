@@ -404,7 +404,7 @@ GameObject:
   - component: {fileID: 1493968827}
   m_Layer: 8
   m_Name: Parking
-  m_TagString: Untagged
+  m_TagString: Parking
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
