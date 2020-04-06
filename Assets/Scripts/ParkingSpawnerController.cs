@@ -54,6 +54,7 @@ public class ParkingSpawnerController : MonoBehaviour
             currentParkings.Any(p => Vector3.Distance(p.transform.position, pos) < minimumDistanceFromParking);
 
     }
+
     public void SpawnParking()
     {
         int retriesCount = 0;
