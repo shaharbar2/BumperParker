@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -36,12 +37,14 @@ public class ParkingController : MonoBehaviour
         //if 1 car inside start timer
         //if 2 cars pause the timer foreach car
         //on timer reach specified time goal, raise event
-        Debug.Log("Parked car: " + parkedCar.transform.position);
-        Debug.Log("timer: " + timer);
+        // Debug.Log("Parked car: " + parkedCar.transform.position);
+        // Debug.Log("timer: " + timer);
 
         if (parkingState == ParkingState.Parking)
         {
             timer += Time.deltaTime;
+            UpdateCarTimerText(parkedCar, $"{Math.Ceiling(timeGoal - timer)}");
+
             if (timer >= timeGoal)
             {
                 timeGoalReachedHandler.Invoke();
@@ -70,6 +73,7 @@ public class ParkingController : MonoBehaviour
         if (carLeaving != null)
         {
             carsInside.Remove(carLeaving);
+            UpdateCarTimerText(carLeaving, "");
             ParkingStateChanged();
         }
     }
@@ -122,6 +126,11 @@ public class ParkingController : MonoBehaviour
     {
         parkedCar = newParkedCar;
         timer = 0;
+    }
+
+    private void UpdateCarTimerText(CarController car, string text)
+    {
+        car.transform.Find("HoverText").GetComponent<HoverTextController>().text = text;
     }
 
     private void UpdateColor()
