@@ -78,6 +78,10 @@ public class ParkingSpawnerController : MonoBehaviour
 
             var newParking = Instantiate(parking, pos, Quaternion.Euler(Vector3.up * Random.Range(0, 359)));
             currentParkings.Add(newParking.gameObject);
+
+            // TODO: Change the camera to a property (currently search for camera each update)
+            //      Add target to the camera
+            Camera.main.GetComponent<MultipleTargetCamera>().targets.Add(newParking);
         }
     }
 

@@ -11,7 +11,9 @@ public class CarController : MonoBehaviour
     private float verticalInput;
     private float brakeInput;
 
-    public Transform wheels;
+
+    public Material material;
+    [SerializeField] private Transform wheels;
     [SerializeField] private float maxSteerAngle = 40;
     [SerializeField] private float acceleration = 50;
     [SerializeField] private float rotationSpeed = 5;

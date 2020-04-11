@@ -43,7 +43,7 @@ public class ParkingController : MonoBehaviour
         if (parkingState == ParkingState.Parking)
         {
             timer += Time.deltaTime;
-            UpdateCarTimerText(parkedCar, $"{Math.Ceiling(timeGoal - timer)}");
+            UpdateCarTimerFill(parkedCar, timer);
 
             if (timer >= timeGoal)
             {
@@ -73,7 +73,7 @@ public class ParkingController : MonoBehaviour
         if (carLeaving != null)
         {
             carsInside.Remove(carLeaving);
-            UpdateCarTimerText(carLeaving, "");
+            UpdateCarTimerFill(carLeaving, 0);
             ParkingStateChanged();
         }
     }
@@ -128,9 +128,9 @@ public class ParkingController : MonoBehaviour
         timer = 0;
     }
 
-    private void UpdateCarTimerText(CarController car, string text)
+    private void UpdateCarTimerFill(CarController car, float timer)
     {
-        car.transform.Find("HoverText").GetComponent<HoverTextController>().text = text;
+        car.transform.Find("HoverUI").GetComponent<HoverUIController>().fill = timer / timeGoal;
     }
 
     private void UpdateColor()

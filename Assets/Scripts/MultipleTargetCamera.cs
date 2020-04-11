@@ -8,15 +8,16 @@ public class MultipleTargetCamera : MonoBehaviour
 {
     public List<Transform> targets;
 
-    // [SerializeField] private float smoothTime = .5f;
+    [SerializeField] private float smoothTime = .5f;
     [SerializeField] private float minZoomY = 15;
     [SerializeField] private float maxZoomY = 35;
     [SerializeField] private float minZoomZ = -15;
     [SerializeField] private float maxZoomZ = -25;
     [SerializeField] private float zoomNormalizer = 100;
 
-    private Camera cam;
     private Bounds bounds;
+    private Camera cam;
+    private Vector3 camVelocity;
 
     void Start()
     {
@@ -50,7 +51,8 @@ public class MultipleTargetCamera : MonoBehaviour
             GetCenterPoint().x,
             newZoomY,
             GetEdgeZ() + newZoomZ);
-        transform.position = newCamPos;
+        transform.position = Vector3.SmoothDamp(transform.position, newCamPos, ref camVelocity, smoothTime);
+        // transform.position = Vector3.Lerp(transform.position, newCamPos, smoothTime);
     }
 
     private Vector3 GetCenterPoint() => bounds.center;
