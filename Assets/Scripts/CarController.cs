@@ -11,8 +11,6 @@ public class CarController : MonoBehaviour
     private float verticalInput;
     private float brakeInput;
 
-
-    public Material material;
     [SerializeField] private Transform wheels;
     [SerializeField] private float maxSteerAngle = 40;
     [SerializeField] private float acceleration = 50;
@@ -45,6 +43,11 @@ public class CarController : MonoBehaviour
         AddGravity();
     }
 
+    public void UpdateTimer(float fill)
+    {
+        transform.Find("HoverUI").GetComponent<HoverUIController>().fill = fill;
+    }
+
     private void OnCollisionEnter(Collision other)
     {
         var otherRb = other.gameObject.GetComponent<Rigidbody>();
@@ -55,7 +58,7 @@ public class CarController : MonoBehaviour
         }
     }
 
-    public void GetInput()
+    private void GetInput()
     {
         horizontalInput = Input.GetAxis("HorizontalMovement");
         verticalInput = Input.GetAxis("Vertical");

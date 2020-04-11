@@ -9,27 +9,23 @@ public class ParkingController : MonoBehaviour
     public float timeGoal = 5;
     public UnityEvent timeGoalReachedHandler;
 
-    [SerializeField] private Color emptyColor = Color.cyan;
-    [SerializeField] private Color parkingColor = Color.green;
-    [SerializeField] private Color competingColor = Color.red;
-    [SerializeField] private float emissionIntensity = 3f;
-    [SerializeField] private float colorChangeSpeed = 0.05f;
-
+    [SerializeField] private ParkingColor parkingColor;
+    private GameManager gameManager;
     private List<CarController> carsInside;
     private CarController parkedCar;
     private float timer;
     private ParkingState parkingState;
-    private Dictionary<ParkingState, Color> stateColors;
+
+    public void ParkingWon()
+    {
+        parkingState = ParkingState.Won;
+    }
 
     private void Start()
     {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         carsInside = new List<CarController>();
-        stateColors = new Dictionary<ParkingState, Color>(){
-            {ParkingState.Empty, emptyColor},
-            {ParkingState.Parking, parkingColor},
-            {ParkingState.Competing, competingColor}
-        };
-        UpdateColor();
+        parkingState = ParkingState.Empty;
     }
 
     private void Update()
@@ -53,6 +49,8 @@ public class ParkingController : MonoBehaviour
                 // maybe change the parking to the color of the winner
                 // Disable the player's movement (because he won) or collision.
                 // Destroy(gameObject);
+
+                gameManager.CarWon(parkedCar, this);
             }
         }
     }
@@ -81,7 +79,7 @@ public class ParkingController : MonoBehaviour
     private void ParkingStateChanged()
     {
         UpdateParkingState();
-        UpdateColor();
+        parkingColor.UpdateColor(parkingState);
         UpdateCarTimer();
     }
 
@@ -130,22 +128,6 @@ public class ParkingController : MonoBehaviour
 
     private void UpdateCarTimerFill(CarController car, float timer)
     {
-        car.transform.Find("HoverUI").GetComponent<HoverUIController>().fill = timer / timeGoal;
-    }
-
-    private void UpdateColor()
-    {
-        Color color = stateColors[parkingState];
-        StartCoroutine(ChangeColorOverTime(color));
-    }
-
-    IEnumerator ChangeColorOverTime(Color color)
-    {
-        foreach (Transform cube in transform)
-        {
-            cube.GetComponent<Renderer>().material.color = color;
-            cube.GetComponent<Renderer>().material.SetColor("_EmissionColor", color * emissionIntensity);
-            yield return new WaitForSeconds(colorChangeSpeed);
-        }
+        car.UpdateTimer(timer / timeGoal);
     }
 }

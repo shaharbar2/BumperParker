@@ -401,6 +401,7 @@ GameObject:
   - component: {fileID: 8449855161269562784}
   - component: {fileID: 498359040099923586}
   - component: {fileID: 690744171781800326}
+  - component: {fileID: 3650668416646015446}
   - component: {fileID: 1493968827}
   m_Layer: 8
   m_Name: Parking
@@ -456,7 +457,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca71726256d96c849b957e9ba4e5d2bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeGoal: 5
+  timeGoal: 3
   timeGoalReachedHandler:
     m_PersistentCalls:
       m_Calls:
@@ -471,9 +472,23 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  parkingColor: {fileID: 3650668416646015446}
+--- !u!114 &3650668416646015446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4939220289792802227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38366a179769b0c4bb3f3f12988b86df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   emptyColor: {r: 0, g: 1, b: 1, a: 1}
   parkingColor: {r: 0, g: 1, b: 0, a: 1}
   competingColor: {r: 1, g: 0, b: 0, a: 1}
+  wonColor: {r: 1, g: 1, b: 1, a: 1}
   emissionIntensity: 3
   colorChangeSpeed: 0.05
 --- !u!114 &1493968827

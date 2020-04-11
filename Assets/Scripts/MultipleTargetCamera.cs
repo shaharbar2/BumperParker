@@ -3,11 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Camera))]
 public class MultipleTargetCamera : MonoBehaviour
 {
-    public List<Transform> targets;
-
     [SerializeField] private float smoothTime = .5f;
     [SerializeField] private float minZoomY = 15;
     [SerializeField] private float maxZoomY = 35;
@@ -15,13 +12,13 @@ public class MultipleTargetCamera : MonoBehaviour
     [SerializeField] private float maxZoomZ = -25;
     [SerializeField] private float zoomNormalizer = 100;
 
+    private List<Transform> targets;
     private Bounds bounds;
-    private Camera cam;
     private Vector3 camVelocity;
 
-    void Start()
+    void Awake()
     {
-        cam = GetComponent<Camera>();
+        targets = new List<Transform>();
     }
 
     void LateUpdate()
@@ -30,6 +27,21 @@ public class MultipleTargetCamera : MonoBehaviour
         UpdateBounds();
 
         Move();
+    }
+
+    public void AddTarget(Transform target)
+    {
+        targets.Add(target);
+    }
+
+    public void AddTargets(Transform[] newTargets)
+    {
+        targets.AddRange(newTargets);
+    }
+
+    public void RemoveTarget(Transform target)
+    {
+        targets.Remove(target);
     }
 
     private void UpdateBounds()

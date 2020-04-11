@@ -7,6 +7,16 @@ public class CarMaterial : MonoBehaviour
     [SerializeField] private Material material;
     void Start()
     {
+        UpdateAllChildsMaterials();
+    }
+
+    private void OnValidate()
+    {
+        UpdateAllChildsMaterials();
+    }
+
+    private void UpdateAllChildsMaterials()
+    {
         ChangeChildMaterial("Classic_16_Body");
         ChangeChildMaterial("Classic_16_Door_L");
         ChangeChildMaterial("Classic_16_Door_R");
@@ -17,11 +27,6 @@ public class CarMaterial : MonoBehaviour
         ChangeChildMaterial("Classic_16_Bumper_F_3");
     }
 
-    private void OnValidate()
-    {
-        Start();
-    }
-
     private void ChangeChildMaterial(string childName)
     {
         Transform child = gameObject.transform.Find(childName);
@@ -29,4 +34,9 @@ public class CarMaterial : MonoBehaviour
         childMesh.material = material;
     }
 
+    public void ChangeMaterial(Material newMaterial)
+    {
+        material = newMaterial;
+        UpdateAllChildsMaterials();
+    }
 }

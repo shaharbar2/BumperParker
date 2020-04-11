@@ -13,6 +13,7 @@ public class ParkingSpawnerController : MonoBehaviour
     [SerializeField] private float _minimumDistanceFromParking;
     [SerializeField] private Color GizmosColor = new Color(1, 0, 0, 0.2f);
 
+    private MultipleTargetCamera multipleTargetCamera;
     private List<GameObject> currentPlayers;
     // TODO: Change parkings to object pooling
     private List<GameObject> currentParkings;
@@ -20,6 +21,7 @@ public class ParkingSpawnerController : MonoBehaviour
 
     void Start()
     {
+        multipleTargetCamera = Camera.main.GetComponent<MultipleTargetCamera>();
         currentPlayers = GameObject.FindGameObjectsWithTag("Player").ToList();
         currentParkings = GameObject.FindGameObjectsWithTag("Parking").ToList();
     }
@@ -47,6 +49,7 @@ public class ParkingSpawnerController : MonoBehaviour
                             0,
                             Random.Range(-size.z / 2, size.z / 2));
     }
+
     private bool IsPositionInvalid(Vector3 pos, float minimumDistanceFromPlayer, float minimumDistanceFromParking)
     {
         return
@@ -79,10 +82,14 @@ public class ParkingSpawnerController : MonoBehaviour
             var newParking = Instantiate(parking, pos, Quaternion.Euler(Vector3.up * Random.Range(0, 359)));
             currentParkings.Add(newParking.gameObject);
 
-            // TODO: Change the camera to a property (currently search for camera each update)
-            //      Add target to the camera
-            Camera.main.GetComponent<MultipleTargetCamera>().targets.Add(newParking);
+
+            multipleTargetCamera.AddTarget(newParking);
         }
+    }
+
+    public void RemoveParking(GameObject parking)
+    {
+        currentParkings.Remove(parking);
     }
 
 }
