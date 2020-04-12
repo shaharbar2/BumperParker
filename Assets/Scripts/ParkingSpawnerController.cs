@@ -29,6 +29,7 @@ public class ParkingSpawnerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // TODO: remove
         if (Input.GetKeyDown(KeyCode.Q))
         {
             SpawnParking();
@@ -87,9 +88,6 @@ public class ParkingSpawnerController : MonoBehaviour
         }
     }
 
-    public void RemoveParking(GameObject parking)
-    {
-        currentParkings.Remove(parking);
-    }
-
+    public int GetParkingCount() => currentParkings.Count;
+    public void RemoveParking(GameObject parking) => currentParkings.Remove(parking);
 }

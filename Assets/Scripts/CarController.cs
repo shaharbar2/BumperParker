@@ -1,16 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CarController : MonoBehaviour
 {
-    private Rigidbody rb;
-    private float steeringAngle;
-    private float forwardVelocity;
-    private float horizontalInput;
-    private float verticalInput;
-    private float brakeInput;
-
     [SerializeField] private Transform wheels;
     [SerializeField] private float maxSteerAngle = 40;
     [SerializeField] private float acceleration = 50;
@@ -21,14 +15,39 @@ public class CarController : MonoBehaviour
     [SerializeField] private float normalMultiplyer = 0.02f;
     [SerializeField] private float collisionPower = 30;
 
-    private void Start()
+    private Rigidbody rb;
+    private float steeringAngle;
+    private float forwardVelocity;
+    private float horizontalInput = 0;
+    private float verticalInput = 0;
+    private bool brakeInput = false;
+    private float brakeForceInput = 0;
+    private bool boostInput = false;
+
+    private void Awake()
     {
+        // controls = new InputMaster();
         rb = GetComponent<Rigidbody>();
+
+        // controls.Player.Boost.performed += ctx => accelerationForce *= boost;
+    }
+
+    private void OnEnable()
+    {
+        // controls.Player.Enable();
+        Debug.Log("enabled");
+        // TODO: add player to the camera via game manger join player
+    }
+
+    private void OnDisable()
+    {
+        // controls.Player.Disable();
     }
 
     private void FixedUpdate()
     {
-        GetInput();
+        UpdateBrakeForceInput();
+        Debug.Log(brakeForceInput);
         steeringAngle = maxSteerAngle * horizontalInput;
         forwardVelocity = transform.InverseTransformDirection(rb.velocity).z;
         if (IsGrounded())
@@ -58,17 +77,39 @@ public class CarController : MonoBehaviour
         }
     }
 
-    private void GetInput()
+    void OnAcceleration(InputValue value)
     {
-        horizontalInput = Input.GetAxis("HorizontalMovement");
-        verticalInput = Input.GetAxis("Vertical");
-        brakeInput = Input.GetAxis("Brake");
+        verticalInput = value.Get<float>();
+    }
+
+    void OnSteering(InputValue value)
+    {
+        horizontalInput = value.Get<float>();
+    }
+
+    void OnBrakeDrift(InputValue value)
+    {
+        brakeInput = value.isPressed;
+    }
+
+    void OnBoost(InputValue value)
+    {
+        boostInput = value.isPressed;
+    }
+
+    private void UpdateBrakeForceInput()
+    {
+        // Workaround to allow raising brakeForce over time with the new InputManager
+        //  (Currently keyboard has no sensitivity/gravity)
+        float brakeForceDeltaUpdate = brakeInput ? Time.deltaTime * 2 : -Time.deltaTime * 3;
+        brakeForceInput = Mathf.Clamp(brakeForceInput + brakeForceDeltaUpdate, 0, 1);
     }
 
     private void Steer()
     {
+        // TODO: Consider rotating around pivot
         var rotateMultiplier = Mathf.Clamp(forwardVelocity * 0.1f, -1, 1);
-        rotateMultiplier *= Mathf.Lerp(1, 2, brakeInput);
+        rotateMultiplier *= Mathf.Lerp(1, 2, brakeForceInput);
         rb.MoveRotation(rb.rotation * Quaternion.Euler(Vector3.up * steeringAngle * rotationSpeed * rotateMultiplier * normalMultiplyer));
     }
 
@@ -76,7 +117,7 @@ public class CarController : MonoBehaviour
     {
         // rb.AddForceAtPosition(Vector3.forward * verticalInput * acceleration * normalMultiplyer, Vector3.back, ForceMode.VelocityChange);
         var accelerationForce = verticalInput * acceleration * normalMultiplyer;
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (boostInput)
         {
             accelerationForce *= boost;
         }
@@ -95,7 +136,7 @@ public class CarController : MonoBehaviour
 
     private void Brake()
     {
-        float brakeForce = 1 - (brakeInput * brake) / 100;
+        float brakeForce = 1 - (brakeForceInput * brake) / 100;
         var vel = rb.velocity;
         vel.x *= brakeForce;
         vel.z *= brakeForce;
