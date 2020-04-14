@@ -1,39 +1,51 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class CarSpawnerController : MonoBehaviour
 {
+    [SerializeField] private GameObject gameManager;
+    [SerializeField] private TextMeshProUGUI joinMessage;
     [SerializeField] private Material blueCar;
-    [SerializeField] private PlayerInputManager pim;
-
     [SerializeField] private Transform car;
-    [SerializeField] private InputActionAsset carController;
+    [SerializeField] private float spawnDistance = 4;
 
     private MultipleTargetCamera multipleTargetCamera;
+    private PlayerInputManager pim;
+    private List<CarController> players;
 
     void Start()
     {
+        Time.timeScale = 0;
         multipleTargetCamera = Camera.main.GetComponent<MultipleTargetCamera>();
-        // var newCar = Instantiate(car, Vector3.zero, Quaternion.identity);
-        // newCar.GetComponent<PlayerInput>().actions = carController;
-        // multipleTargetCamera.AddTarget(newCar);
-        // var newCar1 = Instantiate(car, Vector3.right * 3, Quaternion.identity);
-        // newCar1.GetComponent<PlayerInput>().actions = carController;
-        // multipleTargetCamera.AddTarget(newCar1);
-        var player = pim.JoinPlayer();
-        multipleTargetCamera.AddTarget(player.transform);
-        var player1 = pim.JoinPlayer();
-        player1.GetComponent<CarMaterial>().ChangeMaterial(blueCar);
-        multipleTargetCamera.AddTarget(player1.transform);
+        pim = GetComponent<PlayerInputManager>();
+        players = new List<CarController>();
 
-        //pim.JoinPlayer();
+        pim.onPlayerJoined += (joinedPlayer) =>
+         {
+             joinedPlayer.transform.position = new Vector3(joinedPlayer.playerIndex * spawnDistance, 0.55f, 0);
+             multipleTargetCamera.AddTarget(joinedPlayer.transform);
+             players.Add(joinedPlayer.GetComponent<CarController>());
+         };
+    }
 
-        // var newCar2 = Instantiate(car, Vector3.right * 6, Quaternion.identity);
-        // multipleTargetCamera.AddTarget(newCar2);
-        // currentPlayers = GameObject.FindGameObjectsWithTag("Player").ToList();
-        // currentParkings = GameObject.FindGameObjectsWithTag("Parking").ToList();
+    void Update()
+    {
+        if (players.Any((player) => player.ready))
+        {
+            StartGame();
+        }
+    }
+
+    void StartGame()
+    {
+        Time.timeScale = 1;
+        pim.DisableJoining();
+        joinMessage.gameObject.SetActive(false);
+        gameManager.SetActive(true);
+        gameObject.SetActive(false);
     }
 }

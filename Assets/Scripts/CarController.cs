@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 
 public class CarController : MonoBehaviour
 {
+    public bool ready = false;
+
     [SerializeField] private Transform wheels;
     [SerializeField] private float maxSteerAngle = 40;
     [SerializeField] private float acceleration = 50;
@@ -26,28 +28,12 @@ public class CarController : MonoBehaviour
 
     private void Awake()
     {
-        // controls = new InputMaster();
         rb = GetComponent<Rigidbody>();
-
-        // controls.Player.Boost.performed += ctx => accelerationForce *= boost;
-    }
-
-    private void OnEnable()
-    {
-        // controls.Player.Enable();
-        Debug.Log("enabled");
-        // TODO: add player to the camera via game manger join player
-    }
-
-    private void OnDisable()
-    {
-        // controls.Player.Disable();
     }
 
     private void FixedUpdate()
     {
         UpdateBrakeForceInput();
-        Debug.Log(brakeForceInput);
         steeringAngle = maxSteerAngle * horizontalInput;
         forwardVelocity = transform.InverseTransformDirection(rb.velocity).z;
         if (IsGrounded())
@@ -75,6 +61,11 @@ public class CarController : MonoBehaviour
             // otherRb.AddForce((otherRb.position - rb.position) * collisionPower, ForceMode.Impulse);
             otherRb.AddForceAtPosition(Vector3.one * collisionPower, otherRb.position, ForceMode.Impulse);
         }
+    }
+
+    void OnStartGame(InputValue value)
+    {
+        ready = true;
     }
 
     void OnAcceleration(InputValue value)

@@ -6,9 +6,17 @@
             "id": "e5c39d99-74da-41b3-ae56-68c51a1870d1",
             "actions": [
                 {
+                    "name": "StartGame",
+                    "type": "Button",
+                    "id": "6449fceb-9994-4e42-a25c-aeafcb3a5efb",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press"
+                },
+                {
                     "name": "Acceleration",
                     "type": "Value",
-                    "id": "6449fceb-9994-4e42-a25c-aeafcb3a5efb",
+                    "id": "f9aa2716-c166-4864-9dee-4a9796478af3",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": ""
@@ -280,6 +288,28 @@
                     "action": "Steering",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "13cfe1d5-7e77-44d5-81f7-7d77a07dcfd3",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "StartGame",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1e5ab673-be04-47d1-ae36-095dfb66a1ec",
+                    "path": "<DualShockGamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "PS4",
+                    "action": "StartGame",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

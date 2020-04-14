@@ -1309,6 +1309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c19adc6246e13a4498b59ece0bcb4bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ready: 0
   wheels: {fileID: 2149531674614561054}
   maxSteerAngle: 40
   acceleration: 55
