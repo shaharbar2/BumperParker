@@ -9,7 +9,7 @@ public class CarSpawnerController : MonoBehaviour
 {
     [SerializeField] private GameObject gameManager;
     [SerializeField] private TextMeshProUGUI joinMessage;
-    [SerializeField] private Material blueCar;
+    [SerializeField] private List<Material> carMaterials;
     [SerializeField] private Transform car;
     [SerializeField] private float spawnDistance = 4;
 
@@ -29,6 +29,10 @@ public class CarSpawnerController : MonoBehaviour
              joinedPlayer.transform.position = new Vector3(joinedPlayer.playerIndex * spawnDistance, 0.55f, 0);
              multipleTargetCamera.AddTarget(joinedPlayer.transform);
              players.Add(joinedPlayer.GetComponent<CarController>());
+
+             // This would allow infinite indexes. It'll repeat the colors when it reaches the final index.
+             int materialIndex = (joinedPlayer.playerIndex + 1 % carMaterials.Count) - 1;
+             joinedPlayer.GetComponent<CarMaterial>().ChangeMaterial(carMaterials[materialIndex]);
          };
     }
 
