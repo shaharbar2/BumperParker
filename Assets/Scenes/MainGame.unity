@@ -421,7 +421,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameManager: {fileID: 1258392676}
   joinMessage: {fileID: 1824960412}
-  blueCar: {fileID: 2100000, guid: 46a97091020420249bfa3a65a43513f2, type: 2}
+  carMaterials:
+  - {fileID: 2100000, guid: 6af671a7d398f124a89b90e7bb76f54a, type: 2}
+  - {fileID: 2100000, guid: 46a97091020420249bfa3a65a43513f2, type: 2}
+  - {fileID: 2100000, guid: 94a8a75c4e4e13b479d76da6920cd99f, type: 2}
+  - {fileID: 2100000, guid: 751978934df92ef498cb225e03a5f94d, type: 2}
   car: {fileID: 7547481295070230822, guid: 86f31af8d50977c4caada3d136b3272d, type: 3}
   spawnDistance: 4
 --- !u!114 &725923130
