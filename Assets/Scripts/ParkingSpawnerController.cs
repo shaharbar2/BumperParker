@@ -26,16 +26,6 @@ public class ParkingSpawnerController : MonoBehaviour
         currentParkings = GameObject.FindGameObjectsWithTag("Parking").ToList();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        // TODO: remove
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            SpawnParking();
-        }
-    }
-
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = GizmosColor;
