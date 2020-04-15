@@ -12,14 +12,17 @@ public class HoverUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textMesh;
     [SerializeField] private Image imageScript;
     private Camera camera;
+    private Vector3 offset;
 
     void Start()
     {
         camera = Camera.main;
+        offset = transform.parent.position + transform.localPosition;
     }
 
     void Update()
     {
+        transform.position = transform.parent.position + offset;
         transform.rotation = Quaternion.LookRotation(camera.transform.forward);
         if (textMesh != null)
         {

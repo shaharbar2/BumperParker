@@ -8,6 +8,7 @@ public class CarController : MonoBehaviour
     public bool ready = false;
 
     [SerializeField] private Transform wheels;
+    [SerializeField] private HoverUIController hoverUI;
     [SerializeField] private float maxSteerAngle = 40;
     [SerializeField] private float acceleration = 50;
     [SerializeField] private float rotationSpeed = 5;
@@ -16,6 +17,7 @@ public class CarController : MonoBehaviour
     [SerializeField] private float brake = 3;
     [SerializeField] private float normalMultiplyer = 0.02f;
     [SerializeField] private float collisionPower = 30;
+    [SerializeField] private float respawnTimer = 3;
 
     private Rigidbody rb;
     private float steeringAngle;
@@ -25,6 +27,8 @@ public class CarController : MonoBehaviour
     private bool brakeInput = false;
     private float brakeForceInput = 0;
     private bool boostInput = false;
+    private bool respawnInput = false;
+    private float offGroundTimer = 0;
 
     private void Awake()
     {
@@ -33,6 +37,7 @@ public class CarController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        Respawn();
         UpdateBrakeForceInput();
         steeringAngle = maxSteerAngle * horizontalInput;
         forwardVelocity = transform.InverseTransformDirection(rb.velocity).z;
@@ -50,7 +55,7 @@ public class CarController : MonoBehaviour
 
     public void UpdateTimer(float fill)
     {
-        transform.Find("HoverUI").GetComponent<HoverUIController>().fill = fill;
+        hoverUI.fill = fill;
     }
 
     private void OnCollisionEnter(Collision other)
@@ -87,6 +92,40 @@ public class CarController : MonoBehaviour
     {
         boostInput = value.isPressed;
     }
+
+    void OnRespawn(InputValue value)
+    {
+        respawnInput = value.isPressed;
+    }
+
+    private void Respawn()
+    {
+        if (!IsGrounded())
+        {
+            if (offGroundTimer >= respawnTimer)
+            {
+                hoverUI.text = "R/Square to respawn";
+                if (respawnInput)
+                {
+                    rb.rotation = Quaternion.identity;
+                    rb.position = new Vector3(0, 0.55f, 0);
+                    rb.velocity = Vector3.zero;
+                    offGroundTimer = 0;
+                    hoverUI.text = "";
+                }
+            }
+            else
+            {
+                offGroundTimer += Time.deltaTime;
+            }
+        }
+        else
+        {
+            offGroundTimer = 0;
+            hoverUI.text = "";
+        }
+    }
+
 
     private void UpdateBrakeForceInput()
     {
