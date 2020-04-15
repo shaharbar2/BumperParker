@@ -56,39 +56,6 @@
             ],
             "bindings": [
                 {
-                    "name": "left stick",
-                    "id": "bb060937-7872-4e03-b30e-214e21e6782e",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Acceleration",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "negative",
-                    "id": "9891f67d-8da2-43e4-9066-27caa1089418",
-                    "path": "<DualShockGamepad>/leftStick/down",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "PS4",
-                    "action": "Acceleration",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "positive",
-                    "id": "77db9835-7299-40e2-9c1e-9cb639312098",
-                    "path": "<DualShockGamepad>/leftStick/up",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "PS4",
-                    "action": "Acceleration",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
                     "name": "wasdKeys",
                     "id": "85c1ced5-80c5-4ea3-92be-cff31ebf9a58",
                     "path": "1DAxis",
@@ -155,6 +122,72 @@
                     "isPartOfComposite": true
                 },
                 {
+                    "name": "left stick",
+                    "id": "bb060937-7872-4e03-b30e-214e21e6782e",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Acceleration",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "9891f67d-8da2-43e4-9066-27caa1089418",
+                    "path": "<DualShockGamepad>/leftStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "PS4",
+                    "action": "Acceleration",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "77db9835-7299-40e2-9c1e-9cb639312098",
+                    "path": "<DualShockGamepad>/leftStick/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "PS4",
+                    "action": "Acceleration",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "gamepad",
+                    "id": "57a96524-defb-42df-9e20-12a8b9bfa3b9",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Acceleration",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "caf0cedb-5353-4be9-a656-d05385ba4489",
+                    "path": "<Gamepad>/leftStick/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Acceleration",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "4077d5c8-e10a-4671-878b-e0a3a42c3c10",
+                    "path": "<Gamepad>/leftStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Acceleration",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
                     "name": "",
                     "id": "4ec981e1-efdc-4990-9d85-9ebc12935ffa",
                     "path": "<Keyboard>/space",
@@ -178,6 +211,17 @@
                 },
                 {
                     "name": "",
+                    "id": "9761a7bb-0b73-468e-9aaf-760fce1e64a6",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "BrakeDrift",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "ab288338-9ac2-4f56-9905-855b7889277c",
                     "path": "<Keyboard>/shift",
                     "interactions": "",
@@ -194,6 +238,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "PS4",
+                    "action": "Boost",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8ab6e0b5-4440-4987-971b-8e3596efccd4",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "Boost",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -298,6 +353,39 @@
                     "isPartOfComposite": true
                 },
                 {
+                    "name": "gamepad",
+                    "id": "1ced2876-e360-45e2-8b9d-075dc996d85f",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Steering",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "a1926359-865a-4698-ab82-9f998d0dacd0",
+                    "path": "<Gamepad>/rightStick/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Steering",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "08c37fd4-c0f4-4511-9aa3-1417f90f3ac8",
+                    "path": "<Gamepad>/rightStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Steering",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
                     "name": "",
                     "id": "13cfe1d5-7e77-44d5-81f7-7d77a07dcfd3",
                     "path": "<Keyboard>/e",
@@ -315,6 +403,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "PS4",
+                    "action": "StartGame",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "42185068-9a6d-4862-8208-b6f759a3d940",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
                     "action": "StartGame",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -340,6 +439,17 @@
                     "action": "Respawn",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "46160d6d-5ded-44d1-8530-c24c0b5758a2",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Respawn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
@@ -362,6 +472,17 @@
             "devices": [
                 {
                     "devicePath": "<DualShockGamepad>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        },
+        {
+            "name": "Gamepad",
+            "bindingGroup": "Gamepad",
+            "devices": [
+                {
+                    "devicePath": "<Gamepad>",
                     "isOptional": false,
                     "isOR": false
                 }

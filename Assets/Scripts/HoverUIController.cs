@@ -17,7 +17,7 @@ public class HoverUIController : MonoBehaviour
     void Start()
     {
         camera = Camera.main;
-        offset = transform.parent.position + transform.localPosition;
+        offset = transform.localPosition;
     }
 
     void Update()

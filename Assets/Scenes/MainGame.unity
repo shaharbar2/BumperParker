@@ -786,6 +786,14 @@ MonoBehaviour:
         m_Groups: 
         m_Action: Join
         m_Flags: 0
+      - m_Name: 
+        m_Id: b681a197-6884-449a-b560-aeb1c1e9f074
+        m_Path: <Gamepad>/start
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Join
+        m_Flags: 0
     m_Reference: {fileID: 8548927449082170236, guid: cd0bf73f3daba1147b2ebf376db3b90f,
       type: 3}
   m_PlayerPrefab: {fileID: 7547481295070651654, guid: 86f31af8d50977c4caada3d136b3272d,
