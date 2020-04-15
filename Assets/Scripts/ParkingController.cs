@@ -16,11 +16,6 @@ public class ParkingController : MonoBehaviour
     private float timer;
     private ParkingState parkingState;
 
-    public void ParkingWon()
-    {
-        parkingState = ParkingState.Won;
-    }
-
     private void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();

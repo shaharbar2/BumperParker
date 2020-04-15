@@ -9,8 +9,8 @@ public class ParkingSpawnerController : MonoBehaviour
     [SerializeField] private int maxParkings = 4;
 
     [SerializeField] private Vector3 size;
-    [SerializeField] private float _minimumDistanceFromPlayer;
-    [SerializeField] private float _minimumDistanceFromParking;
+    [SerializeField] private float _minimumPlayerDistance;
+    [SerializeField] private float _minimumParkingDistance;
     [SerializeField] private Color GizmosColor = new Color(1, 0, 0, 0.2f);
 
     private MultipleTargetCamera multipleTargetCamera;
@@ -52,7 +52,7 @@ public class ParkingSpawnerController : MonoBehaviour
     public void SpawnParking()
     {
         int retriesCount = 0;
-        float currentMinimumDistanceFromParking = _minimumDistanceFromParking;
+        float currentMinimumDistanceFromParking = _minimumParkingDistance;
 
         // TODO: change it to work with object pooling
         if (currentParkings.Count < maxParkings)
@@ -68,7 +68,7 @@ public class ParkingSpawnerController : MonoBehaviour
                 }
                 pos = GetRandomPosition();
                 retriesCount++;
-            } while (IsPositionInvalid(pos, _minimumDistanceFromPlayer, currentMinimumDistanceFromParking));
+            } while (IsPositionInvalid(pos, _minimumPlayerDistance, currentMinimumDistanceFromParking));
 
             var newParking = Instantiate(parking, pos, Quaternion.Euler(Vector3.up * Random.Range(0, 359)));
             currentParkings.Add(newParking.gameObject);
@@ -79,5 +79,12 @@ public class ParkingSpawnerController : MonoBehaviour
     }
 
     public int GetParkingCount() => currentParkings.Count;
-    public void RemoveParking(GameObject parking) => currentParkings.Remove(parking);
+    public void RemoveParking(ParkingController parking)
+    {
+        parking.GetComponent<ParkingColor>().UpdateColor(ParkingState.Won);
+        currentParkings.Remove(parking.gameObject);
+        // Destroys parking before the parking.gameObject so it wouldn't be playable
+        Destroy(parking);
+        Destroy(parking.gameObject, 1.5f);
+    }
 }

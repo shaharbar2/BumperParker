@@ -8,36 +8,37 @@ using UnityEngine.InputSystem;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private MultipleTargetCamera camera;
-    [SerializeField] private float parkingSpawnInterval = 2;
     [SerializeField] private ParkingSpawnerController parkingSpawner;
-    [SerializeField] private Material carWonMaterial;
+    [SerializeField] private int goalScore = 5;
+    [SerializeField] private GameObject winCanvas;
+    [SerializeField] private float parkingSpawnInterval = 2;
+    [SerializeField] private GameObject canvas;
+    [SerializeField] private GameObject playerScorePrefab;
+    [SerializeField] private float scoreDistance;
     [SerializeField] private TextMeshProUGUI gameStartCounter;
+    [SerializeField] private Material carWonMaterial;
 
+    Dictionary<GameObject, TextMeshProUGUI> playersScore;
     private bool isGameActive = false;
-    private List<GameObject> players;
     private float parkingsMaxAmount = 2;
-    private float currentParkingSpawnTimer = 5;
+    private float currentParkingSpawnTimer = 0;
 
     void Start()
     {
-        players = new List<GameObject>();
-        // pim.onPlayerJoined += (player) => Debug.Log("Player joined " + player);
-        // TODO: screen timer 3, 2, 1...
-
-        // TODO: spawn 1 parking
-        // afterwards spawn parking over time or when all parkings are taken
         StartCoroutine(GameStartTimer());
     }
 
     void Update()
     {
-        // Debug.Log("Player Count: " + GetComponent<PlayerInputManager>().playerCount);
-
         if (isGameActive)
         {
-            if (parkingSpawner.GetParkingCount() < parkingsMaxAmount)
+            int parkingCount = parkingSpawner.GetParkingCount();
+            if (parkingCount == 0)
             {
-                // Debug.Log(currentParkingSpawnTimer);
+                currentParkingSpawnTimer = Mathf.Max(currentParkingSpawnTimer, parkingSpawnInterval / 2);
+            }
+            if (parkingCount < parkingsMaxAmount)
+            {
                 if (currentParkingSpawnTimer >= parkingSpawnInterval)
                 {
                     parkingSpawner.SpawnParking();
@@ -53,35 +54,71 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator GameStartTimer()
     {
-        gameStartCounter.text = "3";
-        yield return new WaitForSeconds(1);
-        gameStartCounter.text = "2";
-        yield return new WaitForSeconds(1);
-        gameStartCounter.text = "1";
-        yield return new WaitForSeconds(1);
-        gameStartCounter.text = "Start!";
-        isGameActive = true;
+        // TODO: The for should be with i = timeTillStart
+        for (int i = 3; i > 0; i--)
+        {
+            gameStartCounter.text = i.ToString();
+            yield return new WaitForSeconds(1);
+        }
+
+        gameStartCounter.text = "Bumpark!";
+        StartGame();
         yield return new WaitForSeconds(1);
         gameStartCounter.text = "";
-        players.AddRange(GameObject.FindGameObjectsWithTag("Player"));
-        Transform[] playersTransforms = players.Select(go => go.transform).ToArray();
-        camera.AddTargets(playersTransforms);
-        // parkingsMaxAmount = players.Count() - 1;
-        // TODO: remove
-        parkingsMaxAmount = players.Count() + 3;
+    }
+    private void StartGame()
+    {
+        isGameActive = true;
+
+        playersScore = GameObject.FindGameObjectsWithTag("Player")
+            .Select((player, index) => new { player, index })
+            .ToDictionary(x => x.player, x => CreatePlayerScore(x.index, x.player));
+
+        // maxAmount is the amount of players. Minimum 1.
+        parkingsMaxAmount = Mathf.Max(playersScore.Count() - 1, 1);
+
+        currentParkingSpawnTimer = parkingSpawnInterval;
+    }
+
+    private TextMeshProUGUI CreatePlayerScore(int index, GameObject player)
+    {
+        GameObject playerScore = Instantiate(playerScorePrefab, canvas.transform);
+        playerScore.GetComponent<RectTransform>().anchoredPosition3D = Vector3.right * index * scoreDistance;
+        var playerTextMesh = playerScore.GetComponent<TextMeshProUGUI>();
+        playerTextMesh.color = player.GetComponent<CarMaterial>().GetColor();
+        return playerTextMesh;
     }
 
     public void CarWon(CarController car, ParkingController parking)
     {
-        car.GetComponent<CarMaterial>().ChangeMaterial(carWonMaterial);
         car.UpdateTimer(0);
-        Destroy(car);
 
-        parking.ParkingWon();
-        parking.GetComponent<ParkingColor>().UpdateColor(ParkingState.Won);
-        Destroy(parking);
-
-        camera.RemoveTarget(car.transform);
         camera.RemoveTarget(parking.transform);
+        parkingSpawner.RemoveParking(parking);
+
+        TextMeshProUGUI currentPlayerScoreTextMesh = playersScore[car.gameObject];
+        int currentPlayerScore = int.Parse(currentPlayerScoreTextMesh.text) + 1;
+        currentPlayerScoreTextMesh.text = currentPlayerScore.ToString();
+
+        if (currentPlayerScore == goalScore)
+        {
+            Time.timeScale = 0;
+            winCanvas.SetActive(true);
+            winCanvas.transform.Find("WinText").GetComponent<TextMeshProUGUI>().color = currentPlayerScoreTextMesh.color;
+        }
     }
+    
+    // public void CarWon(CarController car, ParkingController parking)
+    // {
+    //     car.GetComponent<CarMaterial>().ChangeMaterial(carWonMaterial);
+    //     car.UpdateTimer(0);
+    //     Destroy(car);
+
+    //     parking.ParkingWon();
+    //     parking.GetComponent<ParkingColor>().UpdateColor(ParkingState.Won);
+    //     Destroy(parking);
+
+    //     camera.RemoveTarget(car.transform);
+    //     camera.RemoveTarget(parking.transform);
+    // }
 }

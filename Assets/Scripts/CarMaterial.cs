@@ -34,6 +34,11 @@ public class CarMaterial : MonoBehaviour
         childMesh.material = material;
     }
 
+    public Color GetColor()
+    {
+        return material.color;
+    }
+
     public void ChangeMaterial(Material newMaterial)
     {
         material = newMaterial;
