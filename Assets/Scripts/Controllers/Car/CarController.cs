@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -19,6 +20,7 @@ public class CarController : MonoBehaviour
     [SerializeField] private float collisionPower = 30;
     [SerializeField] private float respawnTimer = 3;
 
+    private PhotonView photonView;
     private Rigidbody rb;
     private float steeringAngle;
     private float forwardVelocity;
@@ -32,25 +34,29 @@ public class CarController : MonoBehaviour
 
     private void Awake()
     {
+        photonView = GetComponent<PhotonView>();
         rb = GetComponent<Rigidbody>();
     }
 
     private void FixedUpdate()
     {
-        Respawn();
-        UpdateBrakeForceInput();
-        steeringAngle = maxSteerAngle * horizontalInput;
-        forwardVelocity = transform.InverseTransformDirection(rb.velocity).z;
-        if (IsGrounded())
+        if (photonView.IsMine)
         {
-            Accelerate();
-            Steer();
-            Drag();
-        }
+            Respawn();
+            UpdateBrakeForceInput();
+            steeringAngle = maxSteerAngle * horizontalInput;
+            forwardVelocity = transform.InverseTransformDirection(rb.velocity).z;
+            if (IsGrounded())
+            {
+                Accelerate();
+                Steer();
+                Drag();
+            }
 
-        Brake();
-        UpdateWheelPoses();
-        AddGravity();
+            Brake();
+            UpdateWheelPoses();
+            AddGravity();
+        }
     }
 
     public void UpdateTimer(float fill)
