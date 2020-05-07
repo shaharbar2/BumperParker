@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Photon.Pun;
 using UnityEngine;
 
 public class ParkingSpawnerController : MonoBehaviour
@@ -51,30 +52,33 @@ public class ParkingSpawnerController : MonoBehaviour
 
     public void SpawnParking()
     {
-        int retriesCount = 0;
-        float currentMinimumDistanceFromParking = _minimumParkingDistance;
-
-        // TODO: change it to work with object pooling
-        if (currentParkings.Count < maxParkings)
+        if (PhotonNetwork.IsMasterClient)
         {
-            Vector3 pos;
-            do
+            int retriesCount = 0;
+            float currentMinimumDistanceFromParking = _minimumParkingDistance;
+
+            // TODO: change it to work with object pooling
+            if (currentParkings.Count < maxParkings)
             {
-                // lowers the distance allowed from parking if retries has reached the limit
-                if (retriesCount == spawnRetries && currentMinimumDistanceFromParking > 0)
+                Vector3 pos;
+                do
                 {
-                    currentMinimumDistanceFromParking--; // Changing to /= 2 might be nicer
-                    retriesCount = 0;
-                }
-                pos = GetRandomPosition();
-                retriesCount++;
-            } while (IsPositionInvalid(pos, _minimumPlayerDistance, currentMinimumDistanceFromParking));
+                    // lowers the distance allowed from parking if retries has reached the limit
+                    if (retriesCount == spawnRetries && currentMinimumDistanceFromParking > 0)
+                    {
+                        currentMinimumDistanceFromParking--; // Changing to /= 2 might be nicer
+                        retriesCount = 0;
+                    }
+                    pos = GetRandomPosition();
+                    retriesCount++;
+                } while (IsPositionInvalid(pos, _minimumPlayerDistance, currentMinimumDistanceFromParking));
 
-            var newParking = Instantiate(parking, pos, Quaternion.Euler(Vector3.up * Random.Range(0, 359)));
-            currentParkings.Add(newParking.gameObject);
+                GameObject newParking = PhotonNetwork.Instantiate("PhotonPrefabs/Parking", pos, Quaternion.Euler(Vector3.up * Random.Range(0, 359)));
+                currentParkings.Add(newParking);
 
 
-            multipleTargetCamera.AddTarget(newParking);
+                multipleTargetCamera.AddTarget(newParking.transform);
+            }
         }
     }
 
