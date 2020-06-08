@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 public class CarMaterial : MonoBehaviour
@@ -42,6 +43,14 @@ public class CarMaterial : MonoBehaviour
     public void ChangeMaterial(Material newMaterial)
     {
         material = newMaterial;
+        UpdateAllChildsMaterials();
+    }
+
+    [PunRPC]
+    public void ChangeMaterial(string newMaterialName)
+    {
+        Debug.Log("Changing Material");
+        material = Resources.Load<Material>($"CarMaterials/{newMaterialName}");
         UpdateAllChildsMaterials();
     }
 }

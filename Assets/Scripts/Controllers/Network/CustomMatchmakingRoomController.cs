@@ -49,6 +49,7 @@ public class CustomMatchmakingRoomController : MonoBehaviourPunCallbacks
 
     public void Leave()
     {
+        // TODO: Consider clearing the player list here. ClearPlayerListings();
         lobbyPanel.SetActive(true);
         roomPanel.SetActive(false);
         PhotonNetwork.LeaveRoom();
@@ -74,7 +75,7 @@ public class CustomMatchmakingRoomController : MonoBehaviourPunCallbacks
     {
         foreach (Transform playerListing in playersContainer)
         {
-            Destroy(playerListing);
+            Destroy(playerListing.gameObject);
         }
     }
 

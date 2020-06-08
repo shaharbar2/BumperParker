@@ -14,7 +14,7 @@ public class ParkingSpawnerController : MonoBehaviour
     [SerializeField] private float _minimumParkingDistance;
     [SerializeField] private Color GizmosColor = new Color(1, 0, 0, 0.2f);
 
-    private MultipleTargetCamera multipleTargetCamera;
+    private PhotonView multipleTargetCamera;
     private List<GameObject> currentPlayers;
     // TODO: Change parkings to object pooling
     private List<GameObject> currentParkings;
@@ -22,7 +22,7 @@ public class ParkingSpawnerController : MonoBehaviour
 
     void Start()
     {
-        multipleTargetCamera = Camera.main.GetComponent<MultipleTargetCamera>();
+        multipleTargetCamera = Camera.main.GetComponent<PhotonView>();
         currentPlayers = GameObject.FindGameObjectsWithTag("Player").ToList();
         currentParkings = GameObject.FindGameObjectsWithTag("Parking").ToList();
     }
@@ -74,10 +74,11 @@ public class ParkingSpawnerController : MonoBehaviour
                 } while (IsPositionInvalid(pos, _minimumPlayerDistance, currentMinimumDistanceFromParking));
 
                 GameObject newParking = PhotonNetwork.Instantiate("PhotonPrefabs/Parking", pos, Quaternion.Euler(Vector3.up * Random.Range(0, 359)));
+                // TODO: Make sure only the master holds the parkings
                 currentParkings.Add(newParking);
 
-
-                multipleTargetCamera.AddTarget(newParking.transform);
+                int newParkingViewId = newParking.GetComponent<PhotonView>().ViewID;
+                multipleTargetCamera.RPC("AddTarget", RpcTarget.AllBuffered, newParkingViewId);
             }
         }
     }

@@ -94,7 +94,7 @@ public class CustomMatchmakingLobbyController : MonoBehaviourPunCallbacks
     {
         foreach (Transform roomListing in roomsContainer)
         {
-            Destroy(roomListing);
+            Destroy(roomListing.gameObject);
         }
     }
 

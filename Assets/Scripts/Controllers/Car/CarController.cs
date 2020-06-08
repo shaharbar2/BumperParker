@@ -4,7 +4,7 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class CarController : MonoBehaviour
+public class CarController : MonoBehaviourPun, IPunObservable
 {
     public bool ready = false;
 
@@ -32,6 +32,10 @@ public class CarController : MonoBehaviour
     private bool respawnInput = false;
     private float offGroundTimer = 0;
 
+    private Vector3 networkPosition;
+    private Quaternion networkRotation;
+
+
     private void Awake()
     {
         photonView = GetComponent<PhotonView>();
@@ -56,6 +60,15 @@ public class CarController : MonoBehaviour
             Brake();
             UpdateWheelPoses();
             AddGravity();
+        }
+        else
+        {
+            rb.position = Vector3.Slerp(rb.position, networkPosition, 0.1f);
+            rb.rotation = Quaternion.Slerp(rb.rotation, networkRotation, 0.1f);
+            // rb.rotation = Quaternion.RotateTowards(rb.rotation, networkRotation, Time.fixedDeltaTime);
+            // var t = Mathf.SmoothDampAngle(delta, 0.0f, ref AngularVelocity, RotateSmoothTime);
+            // t = 1.0f - t / delta;
+            // transform.rotation = Quaternion.Slerp(transform.rotation, target_rot, t);
         }
     }
 
@@ -200,5 +213,27 @@ public class CarController : MonoBehaviour
     private bool IsGrounded()
     {
         return Physics.Raycast(rb.position, -rb.transform.up, 0.5f);
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            if (!photonView.IsMine) return;
+            stream.SendNext(rb.position);
+            stream.SendNext(rb.rotation);
+            stream.SendNext(rb.velocity);
+            stream.SendNext(rb.angularVelocity);
+        }
+        else
+        {
+            networkPosition = (Vector3)stream.ReceiveNext();
+            networkRotation = (Quaternion)stream.ReceiveNext();
+            rb.velocity = (Vector3)stream.ReceiveNext();
+            rb.angularVelocity = (Vector3)stream.ReceiveNext();
+
+            float lag = Mathf.Abs((float)(PhotonNetwork.Time - info.timestamp));
+            networkPosition += rb.velocity * lag;
+        }
     }
 }

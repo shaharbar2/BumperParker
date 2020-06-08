@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 public class MultipleTargetCamera : MonoBehaviour
@@ -29,9 +30,12 @@ public class MultipleTargetCamera : MonoBehaviour
         Move();
     }
 
-    public void AddTarget(Transform target)
+    [PunRPC]
+    public void AddTarget(int playerId)
     {
-        targets.Add(target);
+        Debug.Log("Adding target to camera");
+        PhotonView playerView = PhotonView.Find(playerId);
+        targets.Add(playerView.transform);
     }
 
     public void AddTargets(Transform[] newTargets)

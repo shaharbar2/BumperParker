@@ -27,7 +27,7 @@ public class CarSpawnerController : MonoBehaviour
         pim.onPlayerJoined += (joinedPlayer) =>
          {
              joinedPlayer.transform.position = new Vector3(joinedPlayer.playerIndex * spawnDistance, 0.55f, 0);
-             multipleTargetCamera.AddTarget(joinedPlayer.transform);
+             //multipleTargetCamera.AddTarget(joinedPlayer.transform);
              players.Add(joinedPlayer.GetComponent<CarController>());
 
              // This would allow infinite indexes. It'll repeat the colors when it reaches the final index.
