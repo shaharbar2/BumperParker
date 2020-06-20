@@ -49,7 +49,6 @@ public class CarMaterial : MonoBehaviour
     [PunRPC]
     public void ChangeMaterial(string newMaterialName)
     {
-        Debug.Log("Changing Material");
         material = Resources.Load<Material>($"CarMaterials/{newMaterialName}");
         UpdateAllChildsMaterials();
     }

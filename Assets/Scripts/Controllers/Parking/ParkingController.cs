@@ -134,6 +134,7 @@ public class ParkingController : MonoBehaviour
     [PunRPC]
     public void Destroy()
     {
+        parkingColor.UpdateColor(ParkingState.Won);
         Destroy(this);
     }
 }

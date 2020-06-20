@@ -1810,7 +1810,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df12324d1073270409cddc385455e1d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camera: {fileID: 963194230}
+  camera: {fileID: 1258392679}
   parkingSpawner: {fileID: 990876475}
   goalScore: 5
   winCanvas: {fileID: 926125927}

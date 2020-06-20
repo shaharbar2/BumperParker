@@ -33,19 +33,15 @@ public class MultipleTargetCamera : MonoBehaviour
     [PunRPC]
     public void AddTarget(int playerId)
     {
-        Debug.Log("Adding target to camera");
         PhotonView playerView = PhotonView.Find(playerId);
         targets.Add(playerView.transform);
     }
 
-    public void AddTargets(Transform[] newTargets)
+    [PunRPC]
+    public void RemoveTarget(int playerId)
     {
-        targets.AddRange(newTargets);
-    }
-
-    public void RemoveTarget(Transform target)
-    {
-        targets.Remove(target);
+        PhotonView playerView = PhotonView.Find(playerId);
+        targets.Remove(playerView.transform);
     }
 
     private void UpdateBounds()

@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using Photon.Pun;
+using Photon.Pun.UtilityScripts;
+using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private MultipleTargetCamera camera;
+    [SerializeField] private PhotonView camera;
     [SerializeField] private ParkingSpawnerController parkingSpawner;
     [SerializeField] private int goalScore = 5;
     [SerializeField] private GameObject winCanvas;
@@ -19,42 +21,44 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI gameStartCounter;
     [SerializeField] private Material carWonMaterial;
 
-    Dictionary<GameObject, TextMeshProUGUI> playersScore;
+    private PhotonView photonView;
+    private Dictionary<string, TextMeshProUGUI> playersScore;
     private bool isGameActive = false;
     private float parkingsMaxAmount = 2;
     private float currentParkingSpawnTimer = 0;
 
     void Start()
     {
+        photonView = GetComponent<PhotonView>();
         StartCoroutine(GameStartTimer());
     }
 
     void Update()
     {
-        if (isGameActive)
+        if (!PhotonNetwork.IsMasterClient || !isGameActive) return;
+
+        int parkingCount = parkingSpawner.GetParkingCount();
+        if (parkingCount == 0)
         {
-            int parkingCount = parkingSpawner.GetParkingCount();
-            if (parkingCount == 0)
+            currentParkingSpawnTimer = Mathf.Max(currentParkingSpawnTimer, parkingSpawnInterval / 2);
+        }
+        if (parkingCount < parkingsMaxAmount)
+        {
+            if (currentParkingSpawnTimer >= parkingSpawnInterval)
             {
-                currentParkingSpawnTimer = Mathf.Max(currentParkingSpawnTimer, parkingSpawnInterval / 2);
+                parkingSpawner.SpawnParking();
+                currentParkingSpawnTimer = 0;
             }
-            if (parkingCount < parkingsMaxAmount)
+            else
             {
-                if (currentParkingSpawnTimer >= parkingSpawnInterval)
-                {
-                    parkingSpawner.SpawnParking();
-                    currentParkingSpawnTimer = 0;
-                }
-                else
-                {
-                    currentParkingSpawnTimer += Time.deltaTime;
-                }
+                currentParkingSpawnTimer += Time.deltaTime;
             }
         }
     }
 
     private IEnumerator GameStartTimer()
     {
+        // TODO: Consider syncing timer between all clients
         // TODO: The for should be with i = timeTillStart
         for (int i = 3; i > 0; i--)
         {
@@ -67,13 +71,14 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1);
         gameStartCounter.text = "";
     }
+
     private void StartGame()
     {
         isGameActive = true;
 
-        playersScore = GameObject.FindGameObjectsWithTag("Player")
+        playersScore = PhotonNetwork.PlayerList
             .Select((player, index) => new { player, index })
-            .ToDictionary(x => x.player, x => CreatePlayerScore(x.index, x.player));
+            .ToDictionary(x => x.player.UserId, x => CreatePlayerScore(x.index, x.player));
 
         // maxAmount is the amount of players. Minimum 1.
         parkingsMaxAmount = Mathf.Max(playersScore.Count() - 1, 1);
@@ -81,32 +86,32 @@ public class GameManager : MonoBehaviour
         currentParkingSpawnTimer = parkingSpawnInterval;
     }
 
-    private TextMeshProUGUI CreatePlayerScore(int index, GameObject player)
+    private TextMeshProUGUI CreatePlayerScore(int index, Player player)
     {
         GameObject playerScore = Instantiate(playerScorePrefab, canvas.transform);
         playerScore.GetComponent<RectTransform>().anchoredPosition3D = Vector3.right * index * scoreDistance;
         var playerTextMesh = playerScore.GetComponent<TextMeshProUGUI>();
-        playerTextMesh.color = player.GetComponent<CarMaterial>().GetColor();
+        playerTextMesh.color = GetColorByPlayer(player);
         return playerTextMesh;
     }
 
     public void CarWon(PhotonView car, PhotonView parking)
     {
         car.RPC("UpdateTimer", RpcTarget.AllBuffered, (float)0);
-
-        camera.RemoveTarget(parking.transform);
         parkingSpawner.RemoveParking(parking);
 
-        // TODO: Fix text to work across clients. (Rpc text managment)
-        TextMeshProUGUI currentPlayerScoreTextMesh = playersScore[car.gameObject];
-        int currentPlayerScore = int.Parse(currentPlayerScoreTextMesh.text) + 1;
-        currentPlayerScoreTextMesh.text = currentPlayerScore.ToString();
+        // The reason the score is set like that, instead of "AddScore" and then "GetScore"
+        //  is that GetScore doesn't retrieve the updated score after using AddScore
+        int playersScore = car.Owner.GetScore();
+        playersScore++;
+        car.Owner.SetScore(playersScore);
+        photonView.RPC("UpdateScoreText", RpcTarget.AllBuffered, car.Owner.UserId, playersScore);
 
-        if (currentPlayerScore == goalScore)
+        if (playersScore == goalScore)
         {
-            // Time.timeScale = 0;
+            gameObject.SetActive(false);
             winCanvas.SetActive(true);
-            winCanvas.transform.Find("WinText").GetComponent<TextMeshProUGUI>().color = currentPlayerScoreTextMesh.color;
+            winCanvas.transform.Find("WinText").GetComponent<TextMeshProUGUI>().color = GetColorByPlayer(car.Owner);
         }
     }
 
@@ -114,6 +119,19 @@ public class GameManager : MonoBehaviour
     public void ReloadGame(string scene)
     {
         PhotonNetwork.LoadLevel(scene);
+    }
+
+    [PunRPC]
+    public void UpdateScoreText(string userId, int score)
+    {
+        TextMeshProUGUI currentPlayerScoreTextMesh = playersScore[userId];
+        currentPlayerScoreTextMesh.text = score.ToString();
+    }
+
+    private Color GetColorByPlayer(Player player)
+    {
+        string usersColorName = (string)player.CustomProperties["CarMaterialColorName"];
+        return Resources.Load<Material>($"CarMaterials/{usersColorName}").color;
     }
 
     // public void CarWon(CarController car, ParkingController parking)

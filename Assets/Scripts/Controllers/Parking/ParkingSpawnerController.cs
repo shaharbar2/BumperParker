@@ -52,47 +52,49 @@ public class ParkingSpawnerController : MonoBehaviour
 
     public void SpawnParking()
     {
-        if (PhotonNetwork.IsMasterClient)
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        int retriesCount = 0;
+        float currentMinimumDistanceFromParking = _minimumParkingDistance;
+
+        // TODO: change it to work with object pooling
+        if (currentParkings.Count < maxParkings)
         {
-            int retriesCount = 0;
-            float currentMinimumDistanceFromParking = _minimumParkingDistance;
-
-            // TODO: change it to work with object pooling
-            if (currentParkings.Count < maxParkings)
+            Vector3 pos;
+            do
             {
-                Vector3 pos;
-                do
+                // lowers the distance allowed from parking if retries has reached the limit
+                if (retriesCount == spawnRetries && currentMinimumDistanceFromParking > 0)
                 {
-                    // lowers the distance allowed from parking if retries has reached the limit
-                    if (retriesCount == spawnRetries && currentMinimumDistanceFromParking > 0)
-                    {
-                        currentMinimumDistanceFromParking--; // Changing to /= 2 might be nicer
-                        retriesCount = 0;
-                    }
-                    pos = GetRandomPosition();
-                    retriesCount++;
-                } while (IsPositionInvalid(pos, _minimumPlayerDistance, currentMinimumDistanceFromParking));
+                    currentMinimumDistanceFromParking--; // Changing to /= 2 might be nicer
+                    retriesCount = 0;
+                }
+                pos = GetRandomPosition();
+                retriesCount++;
+            } while (IsPositionInvalid(pos, _minimumPlayerDistance, currentMinimumDistanceFromParking));
 
-                GameObject newParking = PhotonNetwork.Instantiate("PhotonPrefabs/Parking", pos, Quaternion.Euler(Vector3.up * Random.Range(0, 359)));
-                // TODO: Make sure only the master holds the parkings
-                currentParkings.Add(newParking);
+            GameObject newParking = PhotonNetwork.Instantiate("PhotonPrefabs/Parking", pos, Quaternion.Euler(Vector3.up * Random.Range(0, 359)));
+            // TODO: Make sure only the master holds the parkings
+            currentParkings.Add(newParking);
 
-                int newParkingViewId = newParking.GetComponent<PhotonView>().ViewID;
-                multipleTargetCamera.RPC("AddTarget", RpcTarget.AllBuffered, newParkingViewId);
-            }
+            int newParkingViewId = newParking.GetComponent<PhotonView>().ViewID;
+            multipleTargetCamera.RPC("AddTarget", RpcTarget.AllBuffered, newParkingViewId);
         }
     }
 
     public int GetParkingCount() => currentParkings.Count;
     public void RemoveParking(PhotonView parking)
     {
+        if (!PhotonNetwork.IsMasterClient) return;
+
         currentParkings.Remove(parking.gameObject);
         StartCoroutine(DestroyParking(parking));
+
+        multipleTargetCamera.RPC("RemoveTarget", RpcTarget.AllBuffered, parking.ViewID);
     }
 
     private IEnumerator DestroyParking(PhotonView parking)
     {
-        parking.GetComponent<ParkingColor>().UpdateColor(ParkingState.Won);
         // Destroys parking before the parking.gameObject so it wouldn't be playable
         parking.RPC("Destroy", RpcTarget.AllBuffered);
         yield return new WaitForSeconds(1.5f);
