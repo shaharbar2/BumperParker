@@ -84,12 +84,18 @@ public class ParkingSpawnerController : MonoBehaviour
     }
 
     public int GetParkingCount() => currentParkings.Count;
-    public void RemoveParking(ParkingController parking)
+    public void RemoveParking(PhotonView parking)
+    {
+        currentParkings.Remove(parking.gameObject);
+        StartCoroutine(DestroyParking(parking));
+    }
+
+    private IEnumerator DestroyParking(PhotonView parking)
     {
         parking.GetComponent<ParkingColor>().UpdateColor(ParkingState.Won);
-        currentParkings.Remove(parking.gameObject);
         // Destroys parking before the parking.gameObject so it wouldn't be playable
-        Destroy(parking);
-        Destroy(parking.gameObject, 1.5f);
+        parking.RPC("Destroy", RpcTarget.AllBuffered);
+        yield return new WaitForSeconds(1.5f);
+        PhotonNetwork.Destroy(parking);
     }
 }

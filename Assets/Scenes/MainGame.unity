@@ -907,6 +907,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c65d2127bda670f41b5312fac0286e42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameManager: {fileID: 1258392679}
 --- !u!1 &832058932
 GameObject:
   m_ObjectHideFlags: 0
@@ -1775,6 +1776,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1258392677}
   - component: {fileID: 1258392678}
+  - component: {fileID: 1258392679}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1819,6 +1821,28 @@ MonoBehaviour:
   scoreDistance: 60
   gameStartCounter: {fileID: 1164272022}
   carWonMaterial: {fileID: 2100000, guid: 89e1014773aef1d4191f154d90aece29, type: 2}
+--- !u!114 &1258392679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1258392676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 0
+  OwnershipTransfer: 0
+  ObservedComponents:
+  - {fileID: 0}
+  viewIdField: 2
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1824960410
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -9,17 +10,19 @@ public class ParkingController : MonoBehaviour
     public float timeGoal = 5;
     public UnityEvent timeGoalReachedHandler;
 
+    private PhotonView photonView;
     [SerializeField] private ParkingColor parkingColor;
     private GameManager gameManager;
-    private List<CarController> carsInside;
-    private CarController parkedCar;
+    private List<PhotonView> carsInside;
+    private PhotonView parkedCar;
     private float timer;
     private ParkingState parkingState;
 
     private void Start()
     {
+        photonView = GetComponent<PhotonView>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        carsInside = new List<CarController>();
+        carsInside = new List<PhotonView>();
         parkingState = ParkingState.Empty;
     }
 
@@ -30,29 +33,31 @@ public class ParkingController : MonoBehaviour
         //on timer reach specified time goal, raise event
         // Debug.Log("Parked car: " + parkedCar.transform.position);
         // Debug.Log("timer: " + timer);
-
-        if (parkingState == ParkingState.Parking)
+        if (PhotonNetwork.IsMasterClient)
         {
-            timer += Time.deltaTime;
-            UpdateCarTimerFill(parkedCar, timer);
-
-            if (timer >= timeGoal)
+            if (parkingState == ParkingState.Parking)
             {
-                timeGoalReachedHandler.Invoke();
-                // TODO: Lock parking;
-                // maybe save the name of the car player;
-                // maybe change the parking to the color of the winner
-                // Disable the player's movement (because he won) or collision.
-                // Destroy(gameObject);
+                timer += Time.deltaTime;
+                UpdateCarTimerFill(parkedCar, timer);
 
-                gameManager.CarWon(parkedCar, this);
+                if (timer >= timeGoal)
+                {
+                    timeGoalReachedHandler.Invoke();
+                    // TODO: Lock parking;
+                    // maybe save the name of the car player;
+                    // maybe change the parking to the color of the winner
+                    // Disable the player's movement (because he won) or collision.
+                    // Destroy(gameObject);
+
+                    gameManager.CarWon(parkedCar, photonView);
+                }
             }
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        var carEntering = other.gameObject.GetComponent<CarController>();
+        var carEntering = other.gameObject.GetComponent<PhotonView>();
         if (carEntering != null)
         {
             carsInside.Add(carEntering);
@@ -62,7 +67,7 @@ public class ParkingController : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        var carLeaving = other.gameObject.GetComponent<CarController>();
+        var carLeaving = other.gameObject.GetComponent<PhotonView>();
         if (carLeaving != null)
         {
             carsInside.Remove(carLeaving);
@@ -115,14 +120,20 @@ public class ParkingController : MonoBehaviour
         }
     }
 
-    private void ResetCarTimer(CarController newParkedCar)
+    private void ResetCarTimer(PhotonView newParkedCar)
     {
         parkedCar = newParkedCar;
         timer = 0;
     }
 
-    private void UpdateCarTimerFill(CarController car, float timer)
+    private void UpdateCarTimerFill(PhotonView car, float timer)
     {
-        car.UpdateTimer(timer / timeGoal);
+        car.RPC("UpdateTimer", RpcTarget.AllBuffered, (float)timer / timeGoal);
+    }
+
+    [PunRPC]
+    public void Destroy()
+    {
+        Destroy(this);
     }
 }

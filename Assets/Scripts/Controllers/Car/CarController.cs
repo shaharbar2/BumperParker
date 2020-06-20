@@ -72,6 +72,7 @@ public class CarController : MonoBehaviourPun, IPunObservable
         }
     }
 
+    [PunRPC]
     public void UpdateTimer(float fill)
     {
         hoverUI.fill = fill;

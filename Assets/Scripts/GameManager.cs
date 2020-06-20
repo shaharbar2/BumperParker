@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Photon.Pun;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -89,25 +90,32 @@ public class GameManager : MonoBehaviour
         return playerTextMesh;
     }
 
-    public void CarWon(CarController car, ParkingController parking)
+    public void CarWon(PhotonView car, PhotonView parking)
     {
-        car.UpdateTimer(0);
+        car.RPC("UpdateTimer", RpcTarget.AllBuffered, (float)0);
 
         camera.RemoveTarget(parking.transform);
         parkingSpawner.RemoveParking(parking);
 
+        // TODO: Fix text to work across clients. (Rpc text managment)
         TextMeshProUGUI currentPlayerScoreTextMesh = playersScore[car.gameObject];
         int currentPlayerScore = int.Parse(currentPlayerScoreTextMesh.text) + 1;
         currentPlayerScoreTextMesh.text = currentPlayerScore.ToString();
 
         if (currentPlayerScore == goalScore)
         {
-            Time.timeScale = 0;
+            // Time.timeScale = 0;
             winCanvas.SetActive(true);
             winCanvas.transform.Find("WinText").GetComponent<TextMeshProUGUI>().color = currentPlayerScoreTextMesh.color;
         }
     }
-    
+
+    [PunRPC]
+    public void ReloadGame(string scene)
+    {
+        PhotonNetwork.LoadLevel(scene);
+    }
+
     // public void CarWon(CarController car, ParkingController parking)
     // {
     //     car.GetComponent<CarMaterial>().ChangeMaterial(carWonMaterial);
