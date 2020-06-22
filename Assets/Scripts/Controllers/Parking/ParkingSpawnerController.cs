@@ -15,16 +15,20 @@ public class ParkingSpawnerController : MonoBehaviour
     [SerializeField] private Color GizmosColor = new Color(1, 0, 0, 0.2f);
 
     private PhotonView multipleTargetCamera;
-    private List<GameObject> currentPlayers;
+    private List<GameObject> players => GameObject.FindGameObjectsWithTag("Player").ToList();
     // TODO: Change parkings to object pooling
-    private List<GameObject> currentParkings;
+
+    // The parkings spawner data isnt saved when transferred from previous master, so I must look up all parkings everytime I search them.
+    private List<GameObject> currentParkings => GameObject.FindGameObjectsWithTag("Parking").ToList();
     private int spawnRetries = 15;
 
     void Start()
     {
         multipleTargetCamera = Camera.main.GetComponent<PhotonView>();
-        currentPlayers = GameObject.FindGameObjectsWithTag("Player").ToList();
-        currentParkings = GameObject.FindGameObjectsWithTag("Parking").ToList();
+        // TODO: add this again once data is transferred.
+        // The parkings spawner data isnt saved when transferred from previous master, so I must look up all parkings everytime I search them.
+        // currentPlayers = GameObject.FindGameObjectsWithTag("Player").ToList();
+        // currentParkings = GameObject.FindGameObjectsWithTag("Parking").ToList();
     }
 
     private void OnDrawGizmosSelected()
@@ -45,7 +49,7 @@ public class ParkingSpawnerController : MonoBehaviour
     private bool IsPositionInvalid(Vector3 pos, float minimumDistanceFromPlayer, float minimumDistanceFromParking)
     {
         return
-            currentPlayers.Any(p => Vector3.Distance(p.transform.position, pos) < minimumDistanceFromPlayer) ||
+            players.Any(p => Vector3.Distance(p.transform.position, pos) < minimumDistanceFromPlayer) ||
             currentParkings.Any(p => Vector3.Distance(p.transform.position, pos) < minimumDistanceFromParking);
 
     }
@@ -73,9 +77,11 @@ public class ParkingSpawnerController : MonoBehaviour
                 retriesCount++;
             } while (IsPositionInvalid(pos, _minimumPlayerDistance, currentMinimumDistanceFromParking));
 
-            GameObject newParking = PhotonNetwork.Instantiate("PhotonPrefabs/Parking", pos, Quaternion.Euler(Vector3.up * Random.Range(0, 359)));
-            // TODO: Make sure only the master holds the parkings
-            currentParkings.Add(newParking);
+            // InstantiateSceneObject makes sure that parkings stays even when master leave (ownership is transferred)
+            GameObject newParking = PhotonNetwork.InstantiateSceneObject("PhotonPrefabs/Parking", pos, Quaternion.Euler(Vector3.up * Random.Range(0, 359)));
+            // TODO: add this again once data is transferred.
+            // The parkings spawner data isnt saved when transferred from previous master, so I must look up all parkings everytime I search them.
+            // currentParkings.Add(newParking);
 
             int newParkingViewId = newParking.GetComponent<PhotonView>().ViewID;
             multipleTargetCamera.RPC("AddTarget", RpcTarget.AllBuffered, newParkingViewId);
@@ -87,9 +93,10 @@ public class ParkingSpawnerController : MonoBehaviour
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
-        currentParkings.Remove(parking.gameObject);
+        // TODO: add this again once data is transferred.
+        // The parkings spawner data isnt saved when transferred from previous master, so I must look up all parkings everytime I search them.
+        // currentParkings.Remove(parking.gameObject);
         StartCoroutine(DestroyParking(parking));
-
         multipleTargetCamera.RPC("RemoveTarget", RpcTarget.AllBuffered, parking.ViewID);
     }
 

@@ -72,7 +72,8 @@ public class CustomMatchmakingLobbyController : MonoBehaviourPunCallbacks
             IsOpen = true,
             MaxPlayers = (byte)roomSize,
             //Without Publish UserId you can't receive other user's ids.
-            PublishUserId = true
+            PublishUserId = true,
+            EmptyRoomTtl = 0
         };
         PhotonNetwork.CreateRoom(roomName, roomOps);
     }

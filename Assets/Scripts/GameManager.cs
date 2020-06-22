@@ -8,10 +8,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviourPun
 {
-    [SerializeField] private PhotonView camera;
-    [SerializeField] private ParkingSpawnerController parkingSpawner;
+    [SerializeField] private PhotonView multipleTargetCamera;
     [SerializeField] private int goalScore = 5;
     [SerializeField] private GameObject winCanvas;
     [SerializeField] private float parkingSpawnInterval = 2;
@@ -21,7 +20,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI gameStartCounter;
     [SerializeField] private Material carWonMaterial;
 
-    private PhotonView photonView;
+    private ParkingSpawnerController parkingSpawner;
+
     private Dictionary<string, TextMeshProUGUI> playersScore;
     private bool isGameActive = false;
     private float parkingsMaxAmount = 2;
@@ -29,15 +29,26 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        photonView = GetComponent<PhotonView>();
         StartCoroutine(GameStartTimer());
     }
 
     void Update()
     {
         if (!PhotonNetwork.IsMasterClient || !isGameActive) return;
+        if (parkingSpawner == null)
+        {
+            // TODO: Instantiating the gamemanager as a scene object, and transfering it's ownership would allow having the parking spawner initalized within already.
+            //  It would also allow having 1 parkingSpawnTimer, 
+            //      and keeping the same maxAmount for everyone - On CarLeave add the following
+            //      parkingsMaxAmount = Mathf.Max(parkingsMaxAmount - 1, 1);
+            //      
+            //  to do so, the gamestartertimer logic should be transferred somewhere else
+            parkingsMaxAmount = Mathf.Max(playersScore.Count() - 1, 1);
+            parkingSpawner = GameObject.FindObjectOfType<ParkingSpawnerController>();
+        }
 
         int parkingCount = parkingSpawner.GetParkingCount();
+        Debug.Log("Parkings Count =" + parkingCount);
         if (parkingCount == 0)
         {
             currentParkingSpawnTimer = Mathf.Max(currentParkingSpawnTimer, parkingSpawnInterval / 2);
@@ -83,13 +94,17 @@ public class GameManager : MonoBehaviour
         // maxAmount is the amount of players. Minimum 1.
         parkingsMaxAmount = Mathf.Max(playersScore.Count() - 1, 1);
 
-        currentParkingSpawnTimer = parkingSpawnInterval;
+        if (PhotonNetwork.IsMasterClient)
+        {
+            // TODO: should be removed once gamemanager data is syncronized between all clients.
+            currentParkingSpawnTimer = parkingSpawnInterval;
+        }
     }
 
     private TextMeshProUGUI CreatePlayerScore(int index, Player player)
     {
         GameObject playerScore = Instantiate(playerScorePrefab, canvas.transform);
-        playerScore.GetComponent<RectTransform>().anchoredPosition3D = Vector3.right * index * scoreDistance;
+        UpdateScorePosition(playerScore, index);
         var playerTextMesh = playerScore.GetComponent<TextMeshProUGUI>();
         playerTextMesh.color = GetColorByPlayer(player);
         return playerTextMesh;
@@ -115,6 +130,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void CarLeave(PhotonView car)
+    {
+        photonView.RPC("PlayerLeftScoreText", RpcTarget.AllBuffered, car.Owner.UserId);
+        multipleTargetCamera.RPC("RemoveTarget", RpcTarget.AllBuffered, car.ViewID);
+    }
+
     [PunRPC]
     public void ReloadGame(string scene)
     {
@@ -128,10 +149,44 @@ public class GameManager : MonoBehaviour
         currentPlayerScoreTextMesh.text = score.ToString();
     }
 
+    [PunRPC]
+    public void PlayerLeftScoreText(string userId)
+    {
+        StartCoroutine(PlayerLeftScoreCourotine(userId));
+    }
+
     private Color GetColorByPlayer(Player player)
     {
         string usersColorName = (string)player.CustomProperties["CarMaterialColorName"];
         return Resources.Load<Material>($"CarMaterials/{usersColorName}").color;
+    }
+
+    private IEnumerator PlayerLeftScoreCourotine(string userId)
+    {
+        TextMeshProUGUI currentPlayerScoreTextMesh = playersScore[userId];
+        var oldFontSize = currentPlayerScoreTextMesh.fontSize;
+
+        currentPlayerScoreTextMesh.text = "PlayerLeft";
+        currentPlayerScoreTextMesh.fontSize = 14;
+        playersScore.Remove(userId);
+        // TODO: Remove it from here, this is temporarly here until figured how to syncornize data OnOwnershipTransfered
+        //     Should syncronize parkingsMax, parkingspawner players and parkings, and currentParkingSpawnTimer
+        //      :should be removed once gamemanager data is syncronized between all clients.
+        parkingsMaxAmount = Mathf.Max(playersScore.Count() - 1, 1);
+        yield return new WaitForSeconds(3);
+
+        Destroy(currentPlayerScoreTextMesh);
+        int index = 0;
+        foreach (KeyValuePair<string, TextMeshProUGUI> score in playersScore)
+        {
+            UpdateScorePosition(score.Value.gameObject, index);
+            index++;
+        }
+    }
+
+    private void UpdateScorePosition(GameObject score, int index)
+    {
+        score.GetComponent<RectTransform>().anchoredPosition3D = Vector3.right * index * scoreDistance;
     }
 
     // public void CarWon(CarController car, ParkingController parking)

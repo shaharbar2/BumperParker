@@ -31,17 +31,17 @@ public class MultipleTargetCamera : MonoBehaviour
     }
 
     [PunRPC]
-    public void AddTarget(int playerId)
+    public void AddTarget(int targetId)
     {
-        PhotonView playerView = PhotonView.Find(playerId);
-        targets.Add(playerView.transform);
+        PhotonView targetView = PhotonView.Find(targetId);
+        targets.Add(targetView.transform);
     }
 
     [PunRPC]
-    public void RemoveTarget(int playerId)
+    public void RemoveTarget(int targetId)
     {
-        PhotonView playerView = PhotonView.Find(playerId);
-        targets.Remove(playerView.transform);
+        PhotonView targetView = PhotonView.Find(targetId);
+        targets.Remove(targetView.transform);
     }
 
     private void UpdateBounds()

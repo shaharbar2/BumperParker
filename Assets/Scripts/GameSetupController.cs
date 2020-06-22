@@ -1,5 +1,6 @@
 ﻿using ExitGames.Client.Photon;
 using Photon.Pun;
+using Photon.Pun.UtilityScripts;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -18,14 +19,18 @@ public class GameSetupController : MonoBehaviour
 
     void Start()
     {
+        // TODO: make sure win menu appears for everyone
+
         gameManager.SetActive(true);
         // multipleTargetCamera = Camera.main.GetComponent<MultipleTargetCamera>();
         multipleTargetCamera = Camera.main.GetComponent<PhotonView>();
         int playerIndex = Array.FindIndex(PhotonNetwork.PlayerList, p => p.IsLocal);
         var playersPos = new Vector3(playerIndex * spawnDistance, 0.55f, 0);
         GameObject joinedPlayer = PhotonNetwork.Instantiate("PhotonPrefabs/Carv2", playersPos, Quaternion.identity);
+        joinedPlayer.name = PhotonNetwork.LocalPlayer.UserId;
 
         var joinedPlayerPhotonView = joinedPlayer.GetComponent<PhotonView>();
+        joinedPlayerPhotonView.Owner.SetScore(0);
         multipleTargetCamera.RPC("AddTarget", RpcTarget.AllBuffered, joinedPlayerPhotonView.ViewID);
 
         int materialIndex = (playerIndex + 1 % carMaterials.Count) - 1;
@@ -34,6 +39,11 @@ public class GameSetupController : MonoBehaviour
         Hashtable playerCustomProperties = new Hashtable();
         playerCustomProperties.Add("CarMaterialColorName", carMaterialColorName);
         PhotonNetwork.LocalPlayer.SetCustomProperties(playerCustomProperties);
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.InstantiateSceneObject("PhotonPrefabs/ParkingSpawner", playersPos, Quaternion.identity);
+        }
     }
 
 }
