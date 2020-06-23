@@ -9,9 +9,7 @@ public class MainGameUI : MonoBehaviour
 
     public void ExitGame()
     {
-        GameObject playersCar = GameObject.Find(PhotonNetwork.LocalPlayer.UserId);
-        var playersCarPhotonView = playersCar.GetComponent<PhotonView>();
-        gameManager.CarLeave(playersCarPhotonView);
+        gameManager.Leave();
         PhotonNetwork.LeaveRoom();
         PhotonNetwork.LoadLevel(0);
     }

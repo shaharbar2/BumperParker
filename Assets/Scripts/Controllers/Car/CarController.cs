@@ -1,15 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class CarController : MonoBehaviourPun, IPunObservable
 {
     public bool ready = false;
 
+    [SerializeField] private CarUIController carUI;
     [SerializeField] private Transform wheels;
-    [SerializeField] private HoverUIController hoverUI;
     [SerializeField] private float maxSteerAngle = 40;
     [SerializeField] private float acceleration = 50;
     [SerializeField] private float rotationSpeed = 5;
@@ -20,7 +22,6 @@ public class CarController : MonoBehaviourPun, IPunObservable
     [SerializeField] private float collisionPower = 30;
     [SerializeField] private float respawnTimer = 3;
 
-    private PhotonView photonView;
     private Rigidbody rb;
     private float steeringAngle;
     private float forwardVelocity;
@@ -38,7 +39,6 @@ public class CarController : MonoBehaviourPun, IPunObservable
 
     private void Awake()
     {
-        photonView = GetComponent<PhotonView>();
         rb = GetComponent<Rigidbody>();
     }
 
@@ -70,12 +70,6 @@ public class CarController : MonoBehaviourPun, IPunObservable
             // t = 1.0f - t / delta;
             // transform.rotation = Quaternion.Slerp(transform.rotation, target_rot, t);
         }
-    }
-
-    [PunRPC]
-    public void UpdateTimer(float fill)
-    {
-        hoverUI.fill = fill;
     }
 
     private void OnCollisionEnter(Collision other)
@@ -120,29 +114,30 @@ public class CarController : MonoBehaviourPun, IPunObservable
 
     private void Respawn()
     {
-        if (!IsGrounded())
+        //TODO: try to prettify it
+
+        if (IsGrounded())
         {
-            if (offGroundTimer >= respawnTimer)
+            offGroundTimer = 0;
+            carUI.DisableRespawnMsg();
+            return;
+        }
+
+        if (offGroundTimer >= respawnTimer)
+        {
+            carUI.EnableRespawnMsg();
+            if (respawnInput)
             {
-                hoverUI.text = "R/Square to respawn";
-                if (respawnInput)
-                {
-                    rb.rotation = Quaternion.identity;
-                    rb.position = new Vector3(0, 0.55f, 0);
-                    rb.velocity = Vector3.zero;
-                    offGroundTimer = 0;
-                    hoverUI.text = "";
-                }
-            }
-            else
-            {
-                offGroundTimer += Time.deltaTime;
+                rb.rotation = Quaternion.identity;
+                rb.position = new Vector3(0, 0.55f, 0);
+                rb.velocity = Vector3.zero;
+                offGroundTimer = 0;
+                carUI.DisableRespawnMsg();
             }
         }
         else
         {
-            offGroundTimer = 0;
-            hoverUI.text = "";
+            offGroundTimer += Time.deltaTime;
         }
     }
 

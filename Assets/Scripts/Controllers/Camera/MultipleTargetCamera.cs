@@ -44,6 +44,16 @@ public class MultipleTargetCamera : MonoBehaviour
         targets.Remove(targetView.transform);
     }
 
+    [PunRPC]
+    public void RemoveMultipleTargets(int[] targetsIds)
+    {
+        foreach (int targetId in targetsIds)
+        {
+            PhotonView targetView = PhotonView.Find(targetId);
+            targets.Remove(targetView.transform);
+        }
+    }
+
     private void UpdateBounds()
     {
         // TODO: Consider optimizing it by using a single bounds object and update only if needed

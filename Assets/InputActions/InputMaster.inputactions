@@ -248,7 +248,7 @@
                     "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad",
                     "action": "Boost",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -446,7 +446,7 @@
                     "path": "<Gamepad>/buttonWest",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad",
                     "action": "Respawn",
                     "isComposite": false,
                     "isPartOfComposite": false

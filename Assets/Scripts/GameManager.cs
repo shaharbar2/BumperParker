@@ -8,7 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class GameManager : MonoBehaviourPun
+public class GameManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] private PhotonView multipleTargetCamera;
     [SerializeField] private int goalScore = 5;
@@ -30,6 +30,10 @@ public class GameManager : MonoBehaviourPun
     void Start()
     {
         StartCoroutine(GameStartTimer());
+        if (PhotonNetwork.IsMasterClient)
+        {
+            EnableRestartMenu();
+        }
     }
 
     void Update()
@@ -48,7 +52,6 @@ public class GameManager : MonoBehaviourPun
         }
 
         int parkingCount = parkingSpawner.GetParkingCount();
-        Debug.Log("Parkings Count =" + parkingCount);
         if (parkingCount == 0)
         {
             currentParkingSpawnTimer = Mathf.Max(currentParkingSpawnTimer, parkingSpawnInterval / 2);
@@ -66,6 +69,15 @@ public class GameManager : MonoBehaviourPun
             }
         }
     }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        if (PhotonNetwork.LocalPlayer == newMasterClient)
+        {
+            EnableRestartMenu();
+        }
+    }
+
 
     private IEnumerator GameStartTimer()
     {
@@ -106,7 +118,7 @@ public class GameManager : MonoBehaviourPun
         GameObject playerScore = Instantiate(playerScorePrefab, canvas.transform);
         UpdateScorePosition(playerScore, index);
         var playerTextMesh = playerScore.GetComponent<TextMeshProUGUI>();
-        playerTextMesh.color = GetColorByPlayer(player);
+        playerTextMesh.GetComponent<ColorTextByPlayer>().UpdateColorByPlayer(player);
         return playerTextMesh;
     }
 
@@ -124,16 +136,28 @@ public class GameManager : MonoBehaviourPun
 
         if (playersScore == goalScore)
         {
-            gameObject.SetActive(false);
-            winCanvas.SetActive(true);
-            winCanvas.transform.Find("WinText").GetComponent<TextMeshProUGUI>().color = GetColorByPlayer(car.Owner);
+            parkingSpawner.RemoveAllParkings();
+            photonView.RPC("SetGameOver", RpcTarget.AllBuffered, car.Owner);
         }
     }
 
-    public void CarLeave(PhotonView car)
+    public void Leave()
     {
-        photonView.RPC("PlayerLeftScoreText", RpcTarget.AllBuffered, car.Owner.UserId);
-        multipleTargetCamera.RPC("RemoveTarget", RpcTarget.AllBuffered, car.ViewID);
+        Player player = PhotonNetwork.LocalPlayer;
+        GameObject playersCar = GameObject.Find(player.UserId);
+        var playersCarPhotonView = playersCar.GetComponent<PhotonView>();
+        photonView.RPC("PlayerLeft", RpcTarget.AllBuffered, player);
+        multipleTargetCamera.RPC("RemoveTarget", RpcTarget.AllBuffered, playersCarPhotonView.ViewID);
+    }
+
+    [PunRPC]
+    public void SetGameOver(Player winner)
+    {
+        isGameActive = false;
+        winCanvas.SetActive(true);
+        var winTextMesh = winCanvas.transform.Find("WinText").GetComponent<TextMeshProUGUI>();
+        winTextMesh.GetComponent<ColorTextByPlayer>().UpdateColorByPlayer(winner);
+        winTextMesh.text = $"{winner.NickName} Won !";
     }
 
     [PunRPC]
@@ -150,15 +174,15 @@ public class GameManager : MonoBehaviourPun
     }
 
     [PunRPC]
-    public void PlayerLeftScoreText(string userId)
+    public void PlayerLeft(Player player)
     {
-        StartCoroutine(PlayerLeftScoreCourotine(userId));
+        StartCoroutine(PlayerLeftScoreCourotine(player.UserId));
     }
 
-    private Color GetColorByPlayer(Player player)
+    private void EnableRestartMenu()
     {
-        string usersColorName = (string)player.CustomProperties["CarMaterialColorName"];
-        return Resources.Load<Material>($"CarMaterials/{usersColorName}").color;
+        winCanvas.transform.Find("WaitForHostText").gameObject.SetActive(false);
+        winCanvas.transform.Find("WinMenu").gameObject.SetActive(true);
     }
 
     private IEnumerator PlayerLeftScoreCourotine(string userId)

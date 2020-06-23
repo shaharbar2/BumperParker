@@ -42,6 +42,10 @@ MonoBehaviour:
   - UpdateScoreText
   - RemoveTarget
   - PlayerLeftScoreText
+  - SetGameOver
+  - RemoveMultipleTargets
+  - PlayerLeft
+  - UpdateNameColor
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

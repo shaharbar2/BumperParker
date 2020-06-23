@@ -100,6 +100,18 @@ public class ParkingSpawnerController : MonoBehaviour
         multipleTargetCamera.RPC("RemoveTarget", RpcTarget.AllBuffered, parking.ViewID);
     }
 
+    public void RemoveAllParkings()
+    {
+        List<int> parkingViewIds = new List<int>();
+        foreach (var parking in currentParkings)
+        {
+            PhotonView parkingPhotonView = parking.GetPhotonView();
+            parkingViewIds.Add(parking.GetPhotonView().ViewID);
+            StartCoroutine(DestroyParking(parkingPhotonView));
+        }
+        multipleTargetCamera.RPC("RemoveMultipleTargets", RpcTarget.AllBuffered, parkingViewIds.ToArray());
+    }
+
     private IEnumerator DestroyParking(PhotonView parking)
     {
         // Destroys parking before the parking.gameObject so it wouldn't be playable
