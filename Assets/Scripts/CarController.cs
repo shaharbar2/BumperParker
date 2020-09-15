@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Shahar.Bar.ML;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,19 +21,27 @@ public class CarController : MonoBehaviour
     [SerializeField] private float respawnTimer = 3;
 
     private Rigidbody rb;
-    private float steeringAngle;
-    private float forwardVelocity;
-    private float horizontalInput = 0;
-    private float verticalInput = 0;
-    private bool brakeInput = false;
-    private float brakeForceInput = 0;
-    private bool boostInput = false;
-    private bool respawnInput = false;
-    private float offGroundTimer = 0;
+    public float steeringAngle;
+    public float forwardVelocity;
+    public float horizontalInput = 0;
+    public float verticalInput = 0;
+    public bool brakeInput = false;
+    public float brakeForceInput = 0;
+    public bool boostInput = false;
+    public bool respawnInput = false;
+    public float offGroundTimer = 0;
 
+    [SerializeField] private CarAgent carAgent;
+
+    public void AddReward(float amount)
+    {
+        carAgent.AddReward(amount);
+    }
+    
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        carAgent = GetComponent<CarAgent>();
     }
 
     private void FixedUpdate()
@@ -51,10 +60,12 @@ public class CarController : MonoBehaviour
         Brake();
         UpdateWheelPoses();
         AddGravity();
+        AddReward(rb.velocity.magnitude);
     }
 
     public void UpdateTimer(float fill)
     {
+        AddReward(Time.deltaTime);
         hoverUI.fill = fill;
     }
 

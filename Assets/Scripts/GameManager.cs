@@ -25,7 +25,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(GameStartTimer());
+        //StartCoroutine(GameStartTimer());
+        StartGame();
     }
 
     void Update()
@@ -92,8 +93,9 @@ public class GameManager : MonoBehaviour
     public void CarWon(CarController car, ParkingController parking)
     {
         car.UpdateTimer(0);
-
-        camera.RemoveTarget(parking.transform);
+        car.AddReward(100);
+        
+        //camera.RemoveTarget(parking.transform);
         parkingSpawner.RemoveParking(parking);
 
         TextMeshProUGUI currentPlayerScoreTextMesh = playersScore[car.gameObject];

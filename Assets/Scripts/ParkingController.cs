@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Shahar.Bar.ML;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -21,6 +22,7 @@ public class ParkingController : MonoBehaviour
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         carsInside = new List<CarController>();
         parkingState = ParkingState.Empty;
+        FindObjectOfType<CarAgent>().parkingLocation = transform;
     }
 
     private void Update()
@@ -57,6 +59,7 @@ public class ParkingController : MonoBehaviour
         {
             carsInside.Add(carEntering);
             ParkingStateChanged();
+            carEntering.AddReward(1);
         }
     }
 
@@ -65,6 +68,8 @@ public class ParkingController : MonoBehaviour
         var carLeaving = other.gameObject.GetComponent<CarController>();
         if (carLeaving != null)
         {
+            carLeaving.AddReward(-1);
+
             carsInside.Remove(carLeaving);
             UpdateCarTimerFill(carLeaving, 0);
             ParkingStateChanged();

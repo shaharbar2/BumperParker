@@ -74,7 +74,7 @@ public class ParkingSpawnerController : MonoBehaviour
             currentParkings.Add(newParking.gameObject);
 
 
-            multipleTargetCamera.AddTarget(newParking);
+            //multipleTargetCamera.AddTarget(newParking);
         }
     }
 
